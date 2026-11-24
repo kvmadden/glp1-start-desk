@@ -1,0 +1,24 @@
+{
+  "name": "glp1-start-desk",
+  "private": true,
+  "license": "MIT",
+  "version": "0.1.0",
+  "description": "A pharmacist's desk for the first 12 weeks of GLP-1 therapy, on synthetic patients: dose step due, days covered, side effects, blockers and one next action each.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "data": "node scripts/build-data.mjs",
+    "build": "node scripts/build-data.mjs && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}
