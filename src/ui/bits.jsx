@@ -81,11 +81,11 @@ export function Ladder({ p, product, a, held }) {
   const showNext = !held && a.stepDueDay != null && a.next != null && a.stepDueDay <= p.startDay + span;
   return (
     <figure style={{ margin: 0 }}>
-      <svg className="ladder" viewBox={`0 0 ${W} ${H + top + 26}`} role="img" aria-label={`Dose by week. Now ${a.current} mg in week ${a.week}.`}>
+      <svg className="ladder" viewBox={`0 0 ${W} ${H + top + 26}`} role="img" aria-label={`Dose by week. Now ${a.current}\u00a0mg in week ${a.week}.`}>
         {steps.map((s) => (
           <g key={s}>
             <line x1={left} x2={W - 12} y1={y(s) + rowH / 2} y2={y(s) + rowH / 2} className="lrail" />
-            <text x={left - 12} y={y(s) + rowH / 2 + 4} className={s === a.current ? 'lstep cur' : 'lstep'} textAnchor="end">{s} mg</text>
+            <text x={left - 12} y={y(s) + rowH / 2 + 4} className={s === a.current ? 'lstep cur' : 'lstep'} textAnchor="end">{s}&nbsp;mg</text>
           </g>
         ))}
         {[0, 4, 8, 12].map((w) => (

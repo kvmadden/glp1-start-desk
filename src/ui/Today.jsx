@@ -22,14 +22,14 @@ function script(p, a, prod) {
   }
   if (t === 'refill') {
     return a.missedDoses === 1
-      ? [`Your last box ran out ${a.coverage.gapDays} days ago. Your ${a.current} mg is ready.`, `The ${prod.brand} rule for a missed dose: ${prod.missedRule.charAt(0).toLowerCase() + prod.missedRule.slice(1)}`, 'What got in the way this time?']
-      : [`Your ${a.current} mg runs out ${dayName(a.nextFillDay)}. Want me to fill it today so you do not miss a week?`];
+      ? [`Your last box ran out ${a.coverage.gapDays} days ago. Your ${a.current}\u00a0mg is ready.`, `The ${prod.brand} rule for a missed dose: ${prod.missedRule.charAt(0).toLowerCase() + prod.missedRule.slice(1)}`, 'What got in the way this time?']
+      : [`Your ${a.current}\u00a0mg runs out ${dayName(a.nextFillDay)}. Want me to fill it today so you do not miss a week?`];
   }
   if (t === 'cost') {
     return [`Your savings card ends before your next fill, so the next box could cost $${p.card.copayWithout}.`, 'Do you want me to check whether the card renews, or ask your prescriber about an option your plan covers at a lower cost?', 'If cost will stop you, tell me now. Stopping in the middle of a step is harder to restart than a plan made with your prescriber.'];
   }
   if (t === 'stock') {
-    return [`Your next step, ${a.next || a.current} mg, is out at this store. I have ordered it.`, `It should be here before your supply ends ${dayName(a.nextFillDay)}. If it is not, I will call and we will find it at a nearby store.`];
+    return [`Your next step, ${a.next || a.current}\u00a0mg, is out at this store. I have ordered it.`, `It should be here before your supply ends ${dayName(a.nextFillDay)}. If it is not, I will call and we will find it at a nearby store.`];
   }
   if (t === 'bridge') {
     return ['Medicare drug plans do not cover this medicine when weight is the only reason it is used.', 'The Medicare GLP-1 Bridge may cover it for $50 a month through December 2027. Let me check whether you qualify before your next fill.'];
@@ -39,8 +39,8 @@ function script(p, a, prod) {
   }
   if (t === 'checkin') {
     return a.week <= 2
-      ? [`How was your first ${a.current} mg dose, ${n}?`, 'Any nausea, vomiting, belly pain, or trouble keeping fluids down?', `Your next step is ${a.next} mg around ${dateLabel(a.stepDueDay)}. I will make sure the prescription is here first.`]
-      : [`How is the new ${a.current} mg dose going?`, 'Nausea right after a step is common. Is it mild, or is it stopping you from eating or drinking?', 'If it is more than mild, I can ask your prescriber about staying on this dose longer before the next step.'];
+      ? [`How was your first ${a.current}\u00a0mg dose, ${n}?`, 'Any nausea, vomiting, belly pain, or trouble keeping fluids down?', `Your next step is ${a.next}\u00a0mg around ${dateLabel(a.stepDueDay)}. I will make sure the prescription is here first.`]
+      : [`How is the new ${a.current}\u00a0mg dose going?`, 'Nausea right after a step is common. Is it mild, or is it stopping you from eating or drinking?', 'If it is more than mild, I can ask your prescriber about staying on this dose longer before the next step.'];
   }
   return [];
 }
@@ -52,7 +52,7 @@ function FaxSheet({ p, a, prod, store, sent }) {
       <dl>
         <dt>To</dt><dd>{p.prescriber.name}, {p.prescriber.practice}</dd>
         <dt>From</dt><dd>Pharmacist, {store.name} (synthetic)</dd>
-        <dt>Re</dt><dd>{p.name}, {p.age}. {prod.brand} {a.current} mg weekly, week {a.week}</dd>
+        <dt>Re</dt><dd>{p.name}, {p.age}. {prod.brand} {a.current}&nbsp;mg weekly, week {a.week}</dd>
       </dl>
       <p className="ask">{a.action.ask}</p>
       <p className="reply mono">{(a.action.reply || ['Agree, prescription sent', 'Keep current dose', 'Call me']).map((r) => <span key={r}>[ ] {r}</span>)}</p>
@@ -189,7 +189,7 @@ export default function Today({ data, initial }) {
                         <i className={`pdot ${a.priority}`} />
                         <span className="who">
                           <strong>{x.name}</strong>
-                          <span className="sub">{prod.brand} {a.current} mg · week {a.week}</span>
+                          <span className="sub">{prod.brand} {a.current}&nbsp;mg · week {a.week}</span>
                         </span>
                         <span className="when">
                           <MiniLadder steps={prod.steps} current={a.current} next={a.next} target={x.target} />
@@ -217,7 +217,7 @@ export default function Today({ data, initial }) {
               <span className="sub">{p.analysis.coverage.covered} of {p.analysis.coverage.elapsed} days covered</span>
             </header>
             <Ladder p={p} product={data.products[p.product]} a={p.analysis} held={p.analysis.action.kind === 'hold' || p.analysis.action.type === 'restart'} />
-            <p className="sub ladderfoot">Label steps {data.products[p.product].steps.join(', ')} mg, at least 4 weeks each. Prescriber's target {p.target} mg. {data.products[p.product].missedRule} <Cite c={data.products[p.product].schedule} /></p>
+            <p className="sub ladderfoot">Label steps {data.products[p.product].steps.join(', ')}&nbsp;mg, at least 4 weeks each. Prescriber's target {p.target}&nbsp;mg. {data.products[p.product].missedRule} <Cite c={data.products[p.product].schedule} /></p>
           </section>
           <div className="twocol">
             <Effects a={p.analysis} />

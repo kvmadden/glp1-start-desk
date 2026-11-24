@@ -86,7 +86,7 @@ export function tolerability(p, report, ctx) {
     if (ctx.atMaintenance) {
       const lowerExists = prod.maintenance.some((m) => m < ctx.current);
       if (!lowerExists) {
-        return { call: 'reassess', why: `Not tolerating ${ctx.current} mg, which is already the lowest maintenance dose on the label. The prescriber decides whether to continue.`, cite: prod.cite.tolerate };
+        return { call: 'reassess', why: `Not tolerating ${ctx.current}\u00a0mg, which is already the lowest maintenance dose on the label. The prescriber decides whether to continue.`, cite: prod.cite.tolerate };
       }
       return prod.lowerMaintenanceIfNotTolerated
         ? { call: 'lower', why: 'Not tolerating the maintenance dose. The label says to consider a lower maintenance dose.', cite: prod.cite.tolerate }
@@ -131,12 +131,12 @@ export function analyze(p, today) {
   // Blockers between today and the next fill.
   const blockers = [];
   const want = tol.call === 'slow' ? current : nextStrength;
-  if (!rxFor(want)) blockers.push({ key: 'no-rx', label: `No prescription on file for ${want} mg`, cite: prod.cite.schedule });
+  if (!rxFor(want)) blockers.push({ key: 'no-rx', label: `No prescription on file for ${want}\u00a0mg`, cite: prod.cite.schedule });
   if (p.pa && (!p.pa.strengths.includes(want) || p.pa.through < nextFillDay)) {
-    blockers.push({ key: 'pa', label: p.pa.through < nextFillDay ? `Prior authorization ends before the next fill` : `Prior authorization covers ${p.pa.strengths.join(' and ')} mg only`, cite: cite('practice') });
+    blockers.push({ key: 'pa', label: p.pa.through < nextFillDay ? `Prior authorization ends before the next fill` : `Prior authorization covers ${p.pa.strengths.join(' and ')}\u00a0mg only`, cite: cite('practice') });
   }
   if (p.card && p.card.through < nextFillDay) blockers.push({ key: 'card', label: `Savings card ends before the next fill. Copay without it: $${p.card.copayWithout}`, cite: cite('practice') });
-  if (p.stock?.[want] === 'out') blockers.push({ key: 'stock', label: `${want} mg out of stock at this store`, cite: cite('practice') });
+  if (p.stock?.[want] === 'out') blockers.push({ key: 'stock', label: `${want}\u00a0mg out of stock at this store`, cite: cite('practice') });
   if (p.coverage === 'medicare' && p.uses.every((u) => u === 'weight')) {
     blockers.push({ key: 'bridge', label: 'Medicare Part D excludes drugs used for weight loss alone. Check the Medicare GLP-1 Bridge', cite: cite('partdExclusion') });
   }
@@ -164,7 +164,7 @@ function chooseAction(c) {
     return { kind: 'hold', title: 'Hold the next dose, call the prescriber today', by: today, why: tol.why, care: tol.care, cite: tol.cite };
   }
   if (tol.call === 'other-drug') {
-    return { kind: 'fax', type: 'other-drug', title: `Ask about lowering the ${p.meds.includes('insulin') ? 'insulin' : 'sulfonylurea'}`, by: today, why: tol.why, cite: tol.cite, ask: (() => { const d = p.meds.filter((m) => m === 'insulin' || m === 'sulfonylurea').join(' and '); return `Low blood sugars reported on ${prod.brand} ${current} mg with ${d}. The label says to consider lowering the ${d} dose. Please advise.`; })(), reply: ['Will lower the dose', 'Keep as is', 'Call me'] };
+    return { kind: 'fax', type: 'other-drug', title: `Ask about lowering the ${p.meds.includes('insulin') ? 'insulin' : 'sulfonylurea'}`, by: today, why: tol.why, cite: tol.cite, ask: (() => { const d = p.meds.filter((m) => m === 'insulin' || m === 'sulfonylurea').join(' and '); return `Low blood sugars reported on ${prod.brand} ${current}\u00a0mg with ${d}. The label says to consider lowering the ${d} dose. Please advise.`; })(), reply: ['Will lower the dose', 'Keep as is', 'Call me'] };
   }
   if (missedDoses >= 2) {
     const labelRestart = prod.restartAfterMissed != null && missedDoses >= prod.restartAfterMissed;
@@ -176,28 +176,28 @@ function chooseAction(c) {
         : `${missedDoses} weekly doses without supply. The ${prod.brand} label gives no restart rule, so the prescriber decides.`,
       cite: prod.cite.missed,
       ask: labelRestart
-        ? `No supply for ${missedDoses} weeks. The label says to restart at a lower dose. Please send a prescription for ${lower} mg, or the dose you prefer.`
-        : `No supply for ${missedDoses} weeks on ${current} mg. Please confirm whether to restart at ${current} mg or at ${lower} mg.`,
+        ? `No supply for ${missedDoses} weeks. The label says to restart at a lower dose. Please send a prescription for ${lower}\u00a0mg, or the dose you prefer.`
+        : `No supply for ${missedDoses} weeks on ${current}\u00a0mg. Please confirm whether to restart at ${current}\u00a0mg or at ${lower}\u00a0mg.`,
     };
   }
   if (tol.call === 'reassess') {
-    return { kind: 'fax', type: 'reassess', title: `Ask the prescriber to reassess ${current} mg`, by: Math.max(today, nextFillDay - FAX_LEAD_DAYS), why: tol.why, cite: tol.cite, ask: `Moderate side effects on ${prod.brand} ${current} mg, the lowest maintenance dose on the label. Please advise whether to continue, pause or stop.`, reply: ['Continue', 'Pause', 'Call me'] };
+    return { kind: 'fax', type: 'reassess', title: `Ask the prescriber to reassess ${current}\u00a0mg`, by: Math.max(today, nextFillDay - FAX_LEAD_DAYS), why: tol.why, cite: tol.cite, ask: `Moderate side effects on ${prod.brand} ${current}\u00a0mg, the lowest maintenance dose on the label. Please advise whether to continue, pause or stop.`, reply: ['Continue', 'Pause', 'Call me'] };
   }
   if (tol.call === 'slow' || tol.call === 'lower') {
     const back = prod.steps[Math.max(0, prod.steps.indexOf(current) - 1)];
     const ask = tol.call === 'lower'
-      ? `Not tolerating ${current} mg. The label says to consider a lower maintenance dose. Please send a prescription for the dose you prefer.`
-      : `Moderate stomach effects on ${current} mg. Please consider keeping ${current} mg for 4 more weeks before the next step${c.rxFor(current) ? '' : `, and send a prescription for ${current} mg`}.`;
-    return { kind: 'fax', type: tol.call, title: tol.call === 'lower' ? `Ask about a lower maintenance dose than ${current} mg` : `Ask to stay on ${current} mg for 4 more weeks`, by: Math.max(today, nextFillDay - FAX_LEAD_DAYS), why: tol.why, cite: tol.cite, ask, back };
+      ? `Not tolerating ${current}\u00a0mg. The label says to consider a lower maintenance dose. Please send a prescription for the dose you prefer.`
+      : `Moderate stomach effects on ${current}\u00a0mg. Please consider keeping ${current}\u00a0mg for 4 more weeks before the next step${c.rxFor(current) ? '' : `, and send a prescription for ${current}\u00a0mg`}.`;
+    return { kind: 'fax', type: tol.call, title: tol.call === 'lower' ? `Ask about a lower maintenance dose than ${current}\u00a0mg` : `Ask to stay on ${current}\u00a0mg for 4 more weeks`, by: Math.max(today, nextFillDay - FAX_LEAD_DAYS), why: tol.why, cite: tol.cite, ask, back };
   }
   if (next && has('no-rx')) {
-    return { kind: 'fax', type: 'step', title: `Request the ${next} mg prescription`, by: Math.max(today, stepDueDay - FAX_LEAD_DAYS), why: `Week ${Math.floor((stepDueDay - p.startDay) / 7) + 1} step to ${next} mg is due ${stepDueDay - today <= 0 ? 'now' : `in ${stepDueDay - today} days`}, and a new strength needs its own prescription.`, cite: prod.cite.schedule, ask: `${prod.brand} ${current} mg runs out ${stepDueDay - today <= 0 ? 'now' : `in ${stepDueDay - today} days`}. Per the label schedule the next step is ${next} mg weekly. Please send a prescription for ${next} mg if you agree, or tell us to keep ${current} mg.` };
+    return { kind: 'fax', type: 'step', title: `Request the ${next}\u00a0mg prescription`, by: Math.max(today, stepDueDay - FAX_LEAD_DAYS), why: `Week ${Math.floor((stepDueDay - p.startDay) / 7) + 1} step to ${next}\u00a0mg is due ${stepDueDay - today <= 0 ? 'now' : `in ${stepDueDay - today} days`}, and a new strength needs its own prescription.`, cite: prod.cite.schedule, ask: `${prod.brand} ${current}\u00a0mg runs out ${stepDueDay - today <= 0 ? 'now' : `in ${stepDueDay - today} days`}. Per the label schedule the next step is ${next}\u00a0mg weekly. Please send a prescription for ${next}\u00a0mg if you agree, or tell us to keep ${current}\u00a0mg.` };
   }
   if (!next && has('no-rx')) {
-    return { kind: 'fax', type: 'renew', title: `Request a refill for ${current} mg`, by: Math.max(today, nextFillDay - FAX_LEAD_DAYS), why: 'No refills left on the current strength.', cite: prod.cite.schedule, ask: `No refills left on ${prod.brand} ${current} mg. Please send a new prescription if therapy continues.` };
+    return { kind: 'fax', type: 'renew', title: `Request a refill for ${current}\u00a0mg`, by: Math.max(today, nextFillDay - FAX_LEAD_DAYS), why: 'No refills left on the current strength.', cite: prod.cite.schedule, ask: `No refills left on ${prod.brand} ${current}\u00a0mg. Please send a new prescription if therapy continues.` };
   }
   if (has('pa')) {
-    return { kind: 'fax', type: 'pa', title: 'Ask the prescriber to update the prior authorization', by: Math.max(today, nextFillDay - FAX_LEAD_DAYS - 2), why: blockers.find((b) => b.key === 'pa').label, cite: cite('practice'), ask: `The plan's approval for ${prod.brand} does not cover the next fill (${next || current} mg). Please submit an updated prior authorization.` };
+    return { kind: 'fax', type: 'pa', title: 'Ask the prescriber to update the prior authorization', by: Math.max(today, nextFillDay - FAX_LEAD_DAYS - 2), why: blockers.find((b) => b.key === 'pa').label, cite: cite('practice'), ask: `The plan's approval for ${prod.brand} does not cover the next fill (${next || current}\u00a0mg). Please submit an updated prior authorization.` };
   }
   if (has('bridge')) {
     return { kind: 'call', type: 'bridge', title: 'Call about Medicare coverage', by: Math.max(today, nextFillDay - 5), why: 'Weight-only use is excluded from Part D. The Medicare GLP-1 Bridge runs July 1, 2026 to December 31, 2027 with a $50 copay for those who qualify.', cite: cite('bridge') };
@@ -206,7 +206,7 @@ function chooseAction(c) {
     return { kind: 'call', type: 'cost', title: 'Call about the copay before the card ends', by: Math.max(today, nextFillDay - 5), why: blockers.find((b) => b.key === 'card').label, cite: cite('practice') };
   }
   if (has('stock')) {
-    return { kind: 'call', type: 'stock', title: `Order ${next || current} mg and tell the patient when it lands`, by: Math.max(today, nextFillDay - 2), why: blockers.find((b) => b.key === 'stock').label, cite: cite('practice') };
+    return { kind: 'call', type: 'stock', title: `Order ${next || current}\u00a0mg and tell the patient when it lands`, by: Math.max(today, nextFillDay - 2), why: blockers.find((b) => b.key === 'stock').label, cite: cite('practice') };
   }
   if (report?.effects.some((e) => e.key === 'procedure')) {
     return { kind: 'call', type: 'procedure', title: 'Call before the procedure', by: today + 1, why: 'The drug slows stomach emptying, and the label reports aspiration under anesthesia or deep sedation. It tells patients to inform their care team before any planned procedure.', cite: prod.cite.warnings };
@@ -215,12 +215,12 @@ function chooseAction(c) {
     return { kind: 'call', type: 'refill', title: missedDoses === 1 ? 'Call: one dose late' : 'Call: supply ends in 2 days', by: today + (missedDoses === 1 ? 0 : 1), why: `${prod.brand} label: ${prod.missedRule}`, cite: prod.cite.missed };
   }
   if (stepJustHappened && today - firstAtCurrent >= CHECKIN_AFTER_STEP_DAYS - 1) {
-    return { kind: 'call', type: 'checkin', title: `Check in on the new ${current} mg dose`, by: firstAtCurrent + CHECKIN_AFTER_STEP_DAYS + 2, why: 'A few days after a new strength is when stomach effects show and people decide whether to keep going.', cite: cite('practice') };
+    return { kind: 'call', type: 'checkin', title: `Check in on the new ${current}\u00a0mg dose`, by: firstAtCurrent + CHECKIN_AFTER_STEP_DAYS + 2, why: 'A few days after a new strength is when stomach effects show and people decide whether to keep going.', cite: cite('practice') };
   }
   if (!report && today - p.startDay >= CHECKIN_AFTER_STEP_DAYS - 1 && today - p.startDay <= 14) {
     return { kind: 'call', type: 'checkin', title: 'First-week check-in', by: p.startDay + CHECKIN_AFTER_STEP_DAYS + 2, why: 'The first dose week is when people decide whether this is for them.', cite: cite('practice') };
   }
-  return { kind: 'none', title: next ? `On track. Step to ${next} mg at the next fill` : `On track at ${current} mg`, by: null, why: next ? 'Prescription on file and nothing blocking the next fill.' : 'At the target dose with nothing blocking the next fill.', cite: prod.cite.schedule };
+  return { kind: 'none', title: next ? `On track. Step to ${next}\u00a0mg at the next fill` : `On track at ${current}\u00a0mg`, by: null, why: next ? 'Prescription on file and nothing blocking the next fill.' : 'At the target dose with nothing blocking the next fill.', cite: prod.cite.schedule };
 }
 
 // Today's list: actions that cannot wait first, then by last day to act.

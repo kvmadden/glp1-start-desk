@@ -1,5 +1,7 @@
 # GLP-1 Start Desk
 
+Live: [glp1.kvmadden.com](https://glp1.kvmadden.com)
+
 **The insight.** Most GLP-1 stops are about money and supply, not side effects. In one health system's chart review of 288 people who stopped, 47.6% stopped for financial reasons (a denial, a coupon that ended, the cost) and 11.8% for shortage, against 14.6% for side effects ([Gasoyan et al., Obesity, 2026, via Cleveland Clinic](https://consultqd.clevelandclinic.org/cost-side-effects-top-reasons-for-quitting-glp-1s-for-obesity)). Each of those breaks has a date. Every step up is a new strength, so it needs a new prescription, often a new approval, sometimes stock the store does not carry. The prescriber and the plan each see part of that. The pharmacy sees all of it, days before the patient gives up.
 
 **The tool.** A pharmacist's working desk for the first 12 weeks of GLP-1 therapy that turns each break into one action, dated before it hits: which of my new GLP-1 patients needs something today, and what exactly do I do?
