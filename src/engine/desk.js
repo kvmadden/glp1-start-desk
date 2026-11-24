@@ -13,6 +13,8 @@ export const FAX_LEAD_DAYS = 3;
 export const CHECKIN_AFTER_STEP_DAYS = 3;
 
 const GI = ['nausea', 'vomiting', 'diarrhea', 'constipation', 'reflux'];
+// Facts the patient tells us that are not side effects and carry no severity.
+export const FLAGS = ['thyroid-history', 'pregnant', 'procedure'];
 const LEVEL = { mild: 1, moderate: 2, severe: 3 };
 
 export const EFFECT_LABEL = {
@@ -61,19 +63,19 @@ export function tolerability(p, report, ctx) {
   const effects = report?.effects || [];
   const has = (k) => effects.some((e) => e.key === k);
   if (has('abdominal-pain-severe')) {
-    return { call: 'hold', why: 'Possible pancreatitis. The label says to stop if pancreatitis is suspected.', cite: prod.cite.warnings, care: 'Urgent care or the emergency department today.' };
+    return { call: 'hold', why: 'Possible pancreatitis. The label says to stop if pancreatitis is suspected.', cite: prod.cite.warnings, care: 'Please go to urgent care or the emergency department today.' };
   }
   if (has('ruq-pain')) {
-    return { call: 'hold', why: 'Possible gallbladder disease. The label calls for gallbladder studies and follow-up.', cite: prod.cite.warnings, care: 'Same-day visit with the prescriber or urgent care.' };
+    return { call: 'hold', why: 'Possible gallbladder disease. The label calls for gallbladder studies and follow-up.', cite: prod.cite.warnings, care: 'Please get seen today by your prescriber or at urgent care.' };
   }
   if (has('dehydration')) {
-    return { call: 'hold', why: 'Fluid loss from vomiting or diarrhea can hurt the kidneys. The label says to monitor kidney function.', cite: prod.cite.warnings, care: 'Same-day call with the prescriber. Urgent care if no urine for 8 hours or confusion.' };
+    return { call: 'hold', why: 'Fluid loss from vomiting or diarrhea can hurt the kidneys. The label says to monitor kidney function.', cite: prod.cite.warnings, care: 'Keep sipping fluids. If you cannot keep anything down or feel confused, go to urgent care today.' };
   }
   if (has('thyroid-history')) {
-    return { call: 'hold', why: 'A personal or family history of medullary thyroid cancer or MEN 2 is a contraindication.', cite: prod.cite.boxed, care: 'The prescriber decides on another option.' };
+    return { call: 'hold', why: 'A personal or family history of medullary thyroid cancer or MEN 2 is a contraindication.', cite: prod.cite.boxed, care: 'Your prescriber will decide on another option with you.' };
   }
   if (has('pregnant')) {
-    return { call: 'hold', why: prod.pregnancy, cite: prod.cite.pregnancy, care: 'The prescriber decides next steps.' };
+    return { call: 'hold', why: prod.pregnancy, cite: prod.cite.pregnancy, care: 'Your prescriber will decide the next step with you.' };
   }
   if (has('low-sugar') && p.meds?.some((m) => m === 'insulin' || m === 'sulfonylurea')) {
     return { call: 'other-drug', why: 'Low sugars on insulin or a sulfonylurea. The label says to consider lowering that drug.', cite: prod.cite.warnings };
@@ -82,6 +84,10 @@ export function tolerability(p, report, ctx) {
   const worst = Math.max(0, ...gi.map((e) => LEVEL[e.level]));
   if (worst >= 2) {
     if (ctx.atMaintenance) {
+      const lowerExists = prod.maintenance.some((m) => m < ctx.current);
+      if (!lowerExists) {
+        return { call: 'reassess', why: `Not tolerating ${ctx.current} mg, which is already the lowest maintenance dose on the label. The prescriber decides whether to continue.`, cite: prod.cite.tolerate };
+      }
       return prod.lowerMaintenanceIfNotTolerated
         ? { call: 'lower', why: 'Not tolerating the maintenance dose. The label says to consider a lower maintenance dose.', cite: prod.cite.tolerate }
         : { call: 'slow', why: 'Not tolerating this dose. Ask the prescriber whether to stay or step back.', cite: prod.cite.tolerate };
@@ -116,8 +122,10 @@ export function analyze(p, today) {
   const nextStrength = next || current;
   const rxFor = (s) => (p.rx || []).find((r) => r.strength === s && r.fillsLeft > 0);
   const report = latestReport(p, today);
-  const tol = tolerability(p, report, { atMaintenance });
-  const missedDoses = Math.floor(cov.gapDays / 7);
+  const lastReport = [...(p.reports || [])].filter((r) => r.day <= today).sort((a, b) => b.day - a.day)[0] || null;
+  const tol = tolerability(p, report, { atMaintenance, current });
+  // Weekly doses that fell due with no supply: the first the day after the supply ran out, then every 7 days.
+  const missedDoses = cov.gapDays > 0 ? Math.floor((cov.gapDays - 1) / 7) + 1 : 0;
   const stepJustHappened = fills.length > 1 && fills[fills.length - 2].strength !== current && today - firstAtCurrent <= 7;
 
   // Blockers between today and the next fill.
@@ -139,12 +147,12 @@ export function analyze(p, today) {
   if (ocWeeks && p.meds?.includes('oral-contraceptive') && (week <= 4 || (stepDueDay && stepDueDay - today <= 7) || stepJustHappened)) {
     say.push(`Birth control pills may work less well. Use a non-oral method or add a barrier method for ${ocWeeks} weeks after starting and after each new dose.`);
   }
-  if (report?.effects.some((e) => e.key === 'procedure')) say.push('Tell the surgeon and the anesthesia team about this medicine before the procedure.');
+
 
   const action = chooseAction({ p, prod, today, cov, current, next, stepDueDay, nextFillDay, tol, blockers, missedDoses, report, firstAtCurrent, stepJustHappened, rxFor, week });
   return {
     id: p.id, week, current, next, atMaintenance, stepDueDay, nextFillDay, firstAtCurrent,
-    coverage: cov, missedDoses, report, tolerability: tol, blockers, say, action,
+    coverage: cov, missedDoses, report, lastReport, tolerability: tol, blockers, say, action,
   };
 }
 
@@ -156,7 +164,7 @@ function chooseAction(c) {
     return { kind: 'hold', title: 'Hold the next dose, call the prescriber today', by: today, why: tol.why, care: tol.care, cite: tol.cite };
   }
   if (tol.call === 'other-drug') {
-    return { kind: 'fax', type: 'other-drug', title: 'Ask the prescriber about lowering insulin or the sulfonylurea', by: today, why: tol.why, cite: tol.cite, ask: `Low blood sugars reported on ${prod.brand} ${current} mg with ${p.meds.filter((m) => m === 'insulin' || m === 'sulfonylurea').join(' and ')}. Please consider lowering the dose of the insulin or sulfonylurea.` };
+    return { kind: 'fax', type: 'other-drug', title: `Ask about lowering the ${p.meds.includes('insulin') ? 'insulin' : 'sulfonylurea'}`, by: today, why: tol.why, cite: tol.cite, ask: (() => { const d = p.meds.filter((m) => m === 'insulin' || m === 'sulfonylurea').join(' and '); return `Low blood sugars reported on ${prod.brand} ${current} mg with ${d}. The label says to consider lowering the ${d} dose. Please advise.`; })(), reply: ['Will lower the dose', 'Keep as is', 'Call me'] };
   }
   if (missedDoses >= 2) {
     const labelRestart = prod.restartAfterMissed != null && missedDoses >= prod.restartAfterMissed;
@@ -171,6 +179,9 @@ function chooseAction(c) {
         ? `No supply for ${missedDoses} weeks. The label says to restart at a lower dose. Please send a prescription for ${lower} mg, or the dose you prefer.`
         : `No supply for ${missedDoses} weeks on ${current} mg. Please confirm whether to restart at ${current} mg or at ${lower} mg.`,
     };
+  }
+  if (tol.call === 'reassess') {
+    return { kind: 'fax', type: 'reassess', title: `Ask the prescriber to reassess ${current} mg`, by: Math.max(today, nextFillDay - FAX_LEAD_DAYS), why: tol.why, cite: tol.cite, ask: `Moderate side effects on ${prod.brand} ${current} mg, the lowest maintenance dose on the label. Please advise whether to continue, pause or stop.`, reply: ['Continue', 'Pause', 'Call me'] };
   }
   if (tol.call === 'slow' || tol.call === 'lower') {
     const back = prod.steps[Math.max(0, prod.steps.indexOf(current) - 1)];
@@ -198,7 +209,7 @@ function chooseAction(c) {
     return { kind: 'call', type: 'stock', title: `Order ${next || current} mg and tell the patient when it lands`, by: Math.max(today, nextFillDay - 2), why: blockers.find((b) => b.key === 'stock').label, cite: cite('practice') };
   }
   if (report?.effects.some((e) => e.key === 'procedure')) {
-    return { kind: 'call', type: 'procedure', title: 'Call before the procedure', by: today + 1, why: 'The label tells patients to inform their care team before any planned surgery or procedure, because of the risk of aspiration under sedation.', cite: prod.cite.warnings };
+    return { kind: 'call', type: 'procedure', title: 'Call before the procedure', by: today + 1, why: 'The drug slows stomach emptying, and the label reports aspiration under anesthesia or deep sedation. It tells patients to inform their care team before any planned procedure.', cite: prod.cite.warnings };
   }
   if (missedDoses === 1 || (nextFillDay - today <= 2 && !p.fills.some((f) => f.day > today))) {
     return { kind: 'call', type: 'refill', title: missedDoses === 1 ? 'Call: one dose late' : 'Call: supply ends in 2 days', by: today + (missedDoses === 1 ? 0 : 1), why: `${prod.brand} label: ${prod.missedRule}`, cite: prod.cite.missed };

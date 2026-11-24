@@ -3,7 +3,8 @@
 // Each case is built to put one real counter situation on the desk, so a reviewer sees every rule fire.
 import { mulberry32, pick } from './rng.js';
 
-const FIRST = ['Dana', 'Marcus', 'Priya', 'Tom', 'Alicia', 'Grace', 'Hector', 'Keisha', 'Luis', 'Megan', 'Omar', 'Rita', 'Sam', 'Tanya', 'Victor', 'Wendy', 'Yusuf', 'Bea', 'Carl', 'Diane', 'Eli', 'Fran', 'Gus', 'Hana', 'Ivan', 'Jada', 'Kurt', 'Lena', 'Mo', 'Nia', 'Owen', 'Pam'];
+const FEMALE = ['Dana', 'Priya', 'Alicia', 'Grace', 'Keisha', 'Megan', 'Rita', 'Tanya', 'Wendy', 'Bea', 'Diane', 'Fran', 'Hana', 'Jada', 'Lena', 'Nia', 'Pam', 'Rosa'];
+const MALE = ['Marcus', 'Tom', 'Hector', 'Luis', 'Omar', 'Sam', 'Victor', 'Yusuf', 'Carl', 'Eli', 'Gus', 'Ivan', 'Kurt', 'Mo', 'Owen', 'Ray'];
 const LAST = ['Archer', 'Baptiste', 'Calloway', 'Dimas', 'Easley', 'Farrow', 'Gaines', 'Hollis', 'Iqbal', 'Jeter', 'Kwan', 'Lorde', 'Mabry', 'Nunez', 'Odum', 'Pace', 'Quan', 'Rios', 'Sledge', 'Tandy', 'Ulloa', 'Voss', 'Wilder', 'Yeager'];
 const PRESCRIBERS = [
   { id: 'D-201', name: 'Dr. Lauren Ostrowski', practice: 'Cypress Primary Care' },
@@ -32,7 +33,7 @@ const CASES = [
   // Moderate stomach effects right before a step: slow down.
   { tag: 'slow', product: 'mounjaro', uses: ['t2d'], coverage: 'commercial', target: 10, fills: ladder(-25, [2.5]), rx: [{ strength: 5, fillsLeft: 3 }], reports: [{ day: -2, effects: [{ key: 'nausea', level: 'moderate' }, { key: 'constipation', level: 'mild' }] }], meds: ['metformin'] },
   { tag: 'slow', product: 'wegovy', uses: ['weight'], coverage: 'employer', target: 2.4, fills: ladder(-63, [0.25, 0.5, 1]), rx: [{ strength: 1.7, fillsLeft: 1 }], reports: [{ day: -1, effects: [{ key: 'vomiting', level: 'moderate' }, { key: 'nausea', level: 'moderate' }] }] },
-  { tag: 'lower', product: 'zepbound', uses: ['weight'], coverage: 'commercial', target: 5, fills: ladder(-78, [2.5, 5, 5]), rx: [{ strength: 5, fillsLeft: 2 }], reports: [{ day: -3, effects: [{ key: 'diarrhea', level: 'moderate' }] }] },
+  { tag: 'reassess', product: 'zepbound', uses: ['weight'], coverage: 'commercial', target: 5, fills: ladder(-78, [2.5, 5, 5]), rx: [{ strength: 5, fillsLeft: 2 }], reports: [{ day: -3, effects: [{ key: 'diarrhea', level: 'moderate' }] }] },
   // Red flags: hold the next dose and get the prescriber today.
   { tag: 'hold', product: 'ozempic', uses: ['t2d'], coverage: 'medicare', target: 1, fills: ladder(-40, [0.25, 0.5]), rx: [{ strength: 0.5, fillsLeft: 2 }], reports: [{ day: 0, effects: [{ key: 'abdominal-pain-severe', level: 'severe' }, { key: 'vomiting', level: 'moderate' }] }], meds: ['metformin'] },
   { tag: 'hold', product: 'zepbound', uses: ['weight'], coverage: 'employer', target: 10, fills: ladder(-33, [2.5, 5]), rx: [{ strength: 5, fillsLeft: 2 }], reports: [{ day: -1, effects: [{ key: 'dehydration', level: 'severe' }, { key: 'diarrhea', level: 'severe' }] }] },
@@ -49,7 +50,7 @@ const CASES = [
   { tag: 'stock', product: 'wegovy', uses: ['weight'], coverage: 'employer', target: 2.4, fills: ladder(-80, [0.25, 0.5, 1]), rx: [{ strength: 1.7, fillsLeft: 3 }], stock: { 1.7: 'out' }, reports: [{ day: -12, effects: [{ key: 'nausea', level: 'mild' }] }] },
   { tag: 'bridge', product: 'wegovy', uses: ['weight'], coverage: 'medicare', target: 2.4, fills: ladder(-20, [0.25]), rx: [{ strength: 0.5, fillsLeft: 3 }] },
   // Refill timing.
-  { tag: 'late', product: 'ozempic', uses: ['t2d'], coverage: 'medicare', target: 0.5, fills: ladder(-64, [0.25, 0.5]), rx: [{ strength: 0.5, fillsLeft: 4 }], meds: ['metformin'] },
+  { tag: 'late', product: 'ozempic', uses: ['t2d'], coverage: 'medicare', target: 0.5, fills: ladder(-60, [0.25, 0.5]), rx: [{ strength: 0.5, fillsLeft: 4 }], meds: ['metformin'] },
   { tag: 'ends', product: 'mounjaro', uses: ['t2d'], coverage: 'commercial', target: 5, fills: ladder(-54, [2.5, 5]), rx: [{ strength: 5, fillsLeft: 4 }] },
   // Check-ins.
   { tag: 'checkin-step', product: 'wegovy', uses: ['weight'], coverage: 'employer', target: 2.4, fills: ladder(-31, [0.25, 0.5]), rx: [{ strength: 1, fillsLeft: 1 }], reports: [{ day: -14, effects: [] }] },
@@ -68,16 +69,20 @@ const CASES = [
 export function buildPatients(seed = 7) {
   const rng = mulberry32(seed);
   const used = new Set();
+  let f = 0;
+  let m = 0;
   return CASES.map((c, i) => {
+    const fem = c.meds?.includes('oral-contraceptive') || c.reports?.some((r) => r.effects.some((e) => e.key === 'pregnant')) || i % 2 === 0;
     let name;
-    do name = `${FIRST[i % FIRST.length]} ${pick(rng, LAST)}`; while (used.has(name));
+    do name = `${fem ? FEMALE[f++ % FEMALE.length] : MALE[m++ % MALE.length]} ${pick(rng, LAST)}`; while (used.has(name));
     used.add(name);
-    const fem = c.meds?.includes('oral-contraceptive') || c.reports?.some((r) => r.effects.some((e) => e.key === 'pregnant'));
-    const age = c.coverage === 'medicare' ? 66 + Math.floor(rng() * 12) : fem ? 28 + Math.floor(rng() * 10) : 34 + Math.floor(rng() * 26);
+    const young = c.meds?.includes('oral-contraceptive') || c.reports?.some((r) => r.effects.some((e) => e.key === 'pregnant'));
+    const age = c.coverage === 'medicare' ? 66 + Math.floor(rng() * 12) : young ? 28 + Math.floor(rng() * 10) : 34 + Math.floor(rng() * 26);
     return {
       id: `G-${String(301 + i)}`,
       name,
       age,
+      sex: fem ? 'F' : 'M',
       tag: c.tag,
       product: c.product,
       uses: c.uses,

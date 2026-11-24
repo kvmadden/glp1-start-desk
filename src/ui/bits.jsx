@@ -58,7 +58,7 @@ export function MiniLadder({ steps, current, next, target }) {
 
 // The first 12 weeks: each fill as a bar at its strength on the label's ladder, gaps in coral,
 // today's line, and where the next step falls due.
-export function Ladder({ p, product, a }) {
+export function Ladder({ p, product, a, held }) {
   const steps = product.steps.filter((s) => p.target == null || s <= Math.max(p.target, a.current));
   const narrow = useNarrow();
   const W = narrow ? 360 : 760;
@@ -78,7 +78,7 @@ export function Ladder({ p, product, a }) {
   });
   const clip = (d) => Math.max(p.startDay, Math.min(p.startDay + span, d));
   const gapFrom = through + 1;
-  const showNext = a.stepDueDay != null && a.next != null && a.stepDueDay <= p.startDay + span;
+  const showNext = !held && a.stepDueDay != null && a.next != null && a.stepDueDay <= p.startDay + span;
   return (
     <figure style={{ margin: 0 }}>
       <svg className="ladder" viewBox={`0 0 ${W} ${H + top + 26}`} role="img" aria-label={`Dose by week. Now ${a.current} mg in week ${a.week}.`}>

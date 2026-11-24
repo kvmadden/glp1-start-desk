@@ -35,6 +35,7 @@ export default function App() {
         <a className="brand" href="#/today" aria-label="GLP-1 Start Desk, today">
           <BrandMark />
           <span>GLP-1 Start Desk</span>
+          <span className="brandsub">synthetic</span>
         </a>
         <nav className="tabs" aria-label="Sections">
           {TABS.map((t) => (

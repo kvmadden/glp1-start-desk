@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Chip, Cite, Ladder, MiniLadder } from './bits.jsx';
 import { dateLabel, dayName, firstName, COVERAGE, USE, KIND, PRIORITY } from './format.js';
-import { EFFECT_LABEL } from '../engine/desk.js';
+import { EFFECT_LABEL, FLAGS } from '../engine/desk.js';
 
 // What to say on each kind of call. The desk's own `say` lines are added after these.
 function script(p, a, prod) {
@@ -13,6 +13,12 @@ function script(p, a, prod) {
       a.action.care,
       `I am calling ${p.prescriber.name} now and will call you back today.`,
     ];
+  }
+  if (t === 'other-drug') {
+    return [`${n}, I am asking your prescriber whether your ${p.meds.includes('insulin') ? 'insulin' : 'diabetes pill'} dose should come down now that ${prod.brand} is working.`, 'Until you hear back, check your sugar if you feel shaky, sweaty or confused, and treat a low the way your care team showed you.'];
+  }
+  if (t === 'reassess') {
+    return [`${n}, I am asking your prescriber what to do about the side effects on this dose.`, 'Until they answer, keep sipping fluids, eat small meals, and call me if you cannot keep anything down.'];
   }
   if (t === 'refill') {
     return a.missedDoses === 1
@@ -29,7 +35,7 @@ function script(p, a, prod) {
     return ['Medicare drug plans do not cover this medicine when weight is the only reason it is used.', 'The Medicare GLP-1 Bridge may cover it for $50 a month through December 2027. Let me check whether you qualify before your next fill.'];
   }
   if (t === 'procedure') {
-    return ['You mentioned a procedure coming up.', 'Please tell the surgeon and the anesthesia team you take this medicine. The label asks for that because food can stay in the stomach longer under sedation.'];
+    return ['You mentioned a procedure coming up.', 'Please tell the surgeon and the anesthesia team you take this medicine. It slows how fast your stomach empties, which matters under sedation.', 'They will tell you whether to change anything before the procedure.'];
   }
   if (t === 'checkin') {
     return a.week <= 2
@@ -49,8 +55,8 @@ function FaxSheet({ p, a, prod, store, sent }) {
         <dt>Re</dt><dd>{p.name}, {p.age}. {prod.brand} {a.current} mg weekly, week {a.week}</dd>
       </dl>
       <p className="ask">{a.action.ask}</p>
-      <p className="reply mono"><span>[ ] Agree, prescription sent</span><span>[ ] Keep current dose</span><span>[ ] Call me</span></p>
-      <p className="refs">Days covered since the first fill: {a.coverage.covered} of {a.coverage.elapsed}. Last side-effect check: {a.report ? `${dateLabel(a.report.day)}, ${a.report.effects.length ? a.report.effects.map((e) => `${EFFECT_LABEL[e.key].toLowerCase()} (${e.level})`).join(', ') : 'none reported'}` : 'none yet'}.</p>
+      <p className="reply mono">{(a.action.reply || ['Agree, prescription sent', 'Keep current dose', 'Call me']).map((r) => <span key={r}>[ ] {r}</span>)}</p>
+      <p className="refs">Days covered since the first fill: {a.coverage.covered} of {a.coverage.elapsed}.{a.coverage.gapDays > 0 ? ` No supply for the last ${a.coverage.gapDays} days.` : ''} Last side-effect check: {a.lastReport ? `${dateLabel(a.lastReport.day)}, ${a.lastReport.effects.filter((e) => !FLAGS.includes(e.key)).length ? a.lastReport.effects.filter((e) => !FLAGS.includes(e.key)).map((e) => `${EFFECT_LABEL[e.key].toLowerCase()} (${e.level})`).join(', ') : 'none reported'}` : 'none yet'}.</p>
     </div>
   );
 }
@@ -94,28 +100,38 @@ function ActionCard({ p, a, prod, store, done, markDone }) {
 function Effects({ a }) {
   const r = a.report;
   const tol = a.tolerability;
-  const tone = !r ? 'plain' : { hold: 'coral', 'other-drug': 'coral', slow: 'amber', lower: 'amber', continue: 'pine' }[tol.call];
-  const label = !r ? 'No report yet' : { hold: 'Hold', 'other-drug': 'Ask about the other drug', slow: 'Slow down', lower: 'Lower maintenance', continue: 'Continue' }[tol.call];
+  const effects = r ? r.effects.filter((e) => !FLAGS.includes(e.key)) : [];
+  const flags = r ? r.effects.filter((e) => FLAGS.includes(e.key)) : [];
+  const tone = !r ? 'plain' : { hold: 'coral', 'other-drug': 'coral', slow: 'amber', lower: 'amber', reassess: 'amber', continue: 'pine' }[tol.call];
+  const label = !r ? 'No report yet' : { hold: 'Hold', 'other-drug': 'Ask about the other drug', slow: 'Slow down', lower: 'Lower maintenance', reassess: 'Reassess', continue: 'Continue' }[tol.call];
   return (
     <section className="card">
       <header><h3>Side effects</h3><Chip tone={tone}>{label}</Chip></header>
-      {r ? (
-        r.effects.length
-          ? <ul className="effects">{r.effects.map((e) => <li key={e.key}><span>{EFFECT_LABEL[e.key]}</span><span className={`lvl l${e.level}`}>{e.level}</span></li>)}</ul>
-          : <p style={{ marginTop: 0 }}>None reported on {dateLabel(r.day)}.</p>
-      ) : null}
-      <p className="sub" style={{ margin: 0 }}>{r && r.effects.length ? `Reported ${dateLabel(r.day)}. ${tol.why} ` : r ? '' : 'The first check-in records any side effects. '}Every dose decision goes to the prescriber.</p>
+      {flags.length > 0 && <ul className="flags">{flags.map((e) => <li key={e.key}><i className="bdot coral" />{EFFECT_LABEL[e.key]}</li>)}</ul>}
+      {effects.length > 0 && <ul className="effects">{effects.map((e) => <li key={e.key}><span>{EFFECT_LABEL[e.key]}</span><span className={`lvl l${e.level}`}>{e.level}</span></li>)}</ul>}
+      {r && !effects.length && !flags.length && <p style={{ marginTop: 0 }}>None reported on {dateLabel(r.day)}.</p>}
+      <p className="sub" style={{ margin: 0 }}>{r && (effects.length || flags.length) ? `Reported ${dateLabel(r.day)}. ${tol.why} ` : r ? '' : 'The first check-in records any side effects. '}Every dose decision goes to the prescriber.</p>
     </section>
   );
 }
 
 function NextFill({ p, a }) {
+  if (a.action.kind === 'hold') {
+    return (
+      <section className="card">
+        <header><h3>Next fill</h3><span className="sub">On hold</span></header>
+        <p className="okline"><i className="bdot coral" />No fill until the prescriber decides.</p>
+      </section>
+    );
+  }
+  const late = a.coverage.gapDays > 0;
   return (
     <section className="card">
-      <header><h3>Before the next fill</h3><span className="sub">{dateLabel(a.nextFillDay)}</span></header>
+      <header><h3>{late ? 'Supply' : 'Before the next fill'}</h3><span className="sub">{late ? `ran out ${dateLabel(a.nextFillDay)}` : dateLabel(a.nextFillDay)}</span></header>
+      {late && <p className="okline"><i className="bdot coral" />No supply for {a.coverage.gapDays} days, {a.missedDoses} weekly {a.missedDoses === 1 ? 'dose' : 'doses'} missed.</p>}
       {a.blockers.length ? (
         <ul className="blockers">{a.blockers.map((b) => <li key={b.key}><i className={b.key === 'bridge' || b.key === 'card' ? 'bdot amber' : 'bdot'} />{b.label}</li>)}</ul>
-      ) : <p className="okline"><span className="tick">✓</span>Prescription on file{p.pa ? ', approval covers it' : ''}{p.card ? ', savings card active' : ''}. Nothing blocking.</p>}
+      ) : !late && <p className="okline"><span className="tick">✓</span>Prescription on file{p.pa ? ', approval covers it' : ''}{p.card ? ', savings card active' : ''}. Nothing blocking.</p>}
     </section>
   );
 }
@@ -169,7 +185,7 @@ export default function Today({ data }) {
                   const prod = data.products[x.product];
                   return (
                     <li key={x.id}>
-                      <button className={`row${sel === x.id ? ' on' : ''}${done[x.id] ? ' done' : ''}`} style={{ animationDelay: `${Math.min(i, 12) * 22}ms` }} onClick={() => { setSel(x.id); setSheet(true); }} aria-current={sel === x.id}>
+                      <button className={`row${sel === x.id ? ' on' : ''}${done[x.id] ? ' done' : ''}`} style={{ animationDelay: `${Math.min(i, 12) * 22}ms` }} onClick={() => { setSel(x.id); setSheet(true); if (!window.matchMedia('(max-width: 760px)').matches) window.scrollTo({ top: 0, behavior: 'smooth' }); }} aria-current={sel === x.id}>
                         <i className={`pdot ${a.priority}`} />
                         <span className="who">
                           <strong>{x.name}</strong>
@@ -179,7 +195,7 @@ export default function Today({ data }) {
                           <MiniLadder steps={prod.steps} current={a.current} next={a.next} target={x.target} />
                           {a.action.by != null && <span className={a.action.by <= 0 ? 'due now' : 'due'}>{done[x.id] ? 'done' : a.action.by <= 0 ? 'today' : dateLabel(a.action.by)}</span>}
                         </span>
-                        <span className="act"><span className="kind">{k.label}</span><span>{a.action.title}</span></span>
+                        <span className="act">{a.action.kind !== 'hold' && <span className="kind">{k.label}</span>}<span>{a.action.title}</span></span>
                       </button>
                     </li>
                   );
@@ -200,7 +216,7 @@ export default function Today({ data }) {
               <h3>{data.products[p.product].brand}, week {p.analysis.week} of 12</h3>
               <span className="sub">{p.analysis.coverage.covered} of {p.analysis.coverage.elapsed} days covered</span>
             </header>
-            <Ladder p={p} product={data.products[p.product]} a={p.analysis} />
+            <Ladder p={p} product={data.products[p.product]} a={p.analysis} held={p.analysis.action.kind === 'hold' || p.analysis.action.type === 'restart'} />
             <p className="sub ladderfoot">Label steps {data.products[p.product].steps.join(', ')} mg, at least 4 weeks each. Prescriber's target {p.target} mg. {data.products[p.product].missedRule} <Cite c={data.products[p.product].schedule} /></p>
           </section>
           <div className="twocol">

@@ -323,3 +323,14 @@ h2, h1.h2 { font-weight: 600; font-size: 20px; letter-spacing: -0.01em; margin: 
 }
 .detail > * { flex-shrink: 0; }
 @media (max-width: 760px) { .row.on { background: none; box-shadow: none; } }
+.flags { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-direction: column; gap: 8px; }
+.flags li, .okline { display: flex; gap: 10px; align-items: baseline; }
+.bdot.coral { background: var(--coral); }
+.okline .bdot { flex: none; width: 8px; height: 8px; border-radius: 50%; transform: translateY(-1px); }
+.flags .bdot { flex: none; width: 8px; height: 8px; border-radius: 50%; }
+@media (max-width: 760px) {
+  .brandsub { display: inline; font-size: 12px; font-weight: 500; color: var(--muted); padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; }
+  .reply { flex-direction: column; gap: 4px; }
+  .stepsvg text { font-size: 20px; }
+  .stepsvg .clt { font-size: 18px; }
+}
