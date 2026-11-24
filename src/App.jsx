@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Today from './ui/Today.jsx';
-import WhyStop from './ui/WhyStop.jsx';
+import Insight from './ui/Insight.jsx';
 import Plans from './ui/Plans.jsx';
 import Pilot from './ui/Pilot.jsx';
 import { BrandMark } from './ui/bits.jsx';
@@ -10,29 +10,30 @@ import data from './data/desk.json';
 setToday(data.store.today);
 
 const TABS = [
-  { key: 'today', label: 'Today', short: 'Today' },
-  { key: 'why', label: 'Why they stop', short: 'Why' },
+  { key: 'why', label: 'The insight', short: 'Insight' },
+  { key: 'desk', label: 'Work list', short: 'Work list' },
   { key: 'plans', label: 'For plans', short: 'Plans' },
   { key: 'pilot', label: 'Pilot', short: 'Pilot' },
 ];
 
-const readTab = () => {
-  const t = window.location.hash.replace(/^#\/?/, '').split('?')[0];
-  return TABS.some((x) => x.key === t) ? t : 'today';
+const readRoute = () => {
+  const [t, q] = window.location.hash.replace(/^#\/?/, '').split('?');
+  const tab = t === 'today' ? 'desk' : TABS.some((x) => x.key === t) ? t : 'why';
+  return { tab, patient: new URLSearchParams(q || '').get('p') };
 };
 
 export default function App() {
-  const [tab, setTab] = useState(readTab());
+  const [{ tab, patient }, setRoute] = useState(readRoute());
   useEffect(() => {
-    const on = () => { setTab(readTab()); window.scrollTo(0, 0); };
+    const on = () => { setRoute(readRoute()); window.scrollTo(0, 0); };
     window.addEventListener('hashchange', on);
     return () => window.removeEventListener('hashchange', on);
   }, []);
-  const go = (t) => { window.location.hash = `/${t}`; };
+  const go = (t, p) => { window.location.hash = `/${t}${p ? `?p=${p}` : ''}`; };
   return (
     <div className="app">
       <header className="top">
-        <a className="brand" href="#/today" aria-label="GLP-1 Start Desk, today">
+        <a className="brand" href="#/why" aria-label="GLP-1 Start Desk, home">
           <BrandMark />
           <span>GLP-1 Start Desk</span>
           <span className="brandsub">synthetic</span>
@@ -45,8 +46,8 @@ export default function App() {
         <div className="planchip" title="Every patient on this desk is made up">{data.store.name} · synthetic patients · {dateLabel(0)}, 2026</div>
       </header>
       <main key={tab}>
-        {tab === 'today' && <Today data={data} />}
-        {tab === 'why' && <WhyStop data={data} go={go} />}
+        {tab === 'why' && <Insight data={data} go={go} />}
+        {tab === 'desk' && <Today data={data} initial={patient} />}
         {tab === 'plans' && <Plans />}
         {tab === 'pilot' && <Pilot />}
       </main>

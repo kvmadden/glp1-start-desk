@@ -237,3 +237,23 @@ export function todayList(analyses, today) {
 export function mustToday(a, today) {
   return a.action.kind !== 'none' && a.action.by != null && a.action.by <= today;
 }
+
+// The break each patient is heading into, and the day it bites. Used by the opening chart.
+// Money and paperwork breaks are the ones the pharmacy sees before anyone else.
+export const BREAKS = [
+  { key: 'rx', label: 'No prescription for the next strength', kind: 'paperwork' },
+  { key: 'pa', label: 'Approval covers the old strength only', kind: 'paperwork' },
+  { key: 'cost', label: 'Card ends or coverage gap', kind: 'money' },
+  { key: 'stock', label: 'Next strength out of stock', kind: 'supply' },
+  { key: 'effects', label: 'Side effects or a red flag', kind: 'clinical' },
+  { key: 'gap', label: 'Already out of supply', kind: 'supply' },
+];
+const BREAK_OF = { step: 'rx', renew: 'rx', pa: 'pa', cost: 'cost', bridge: 'cost', stock: 'stock', slow: 'effects', lower: 'effects', reassess: 'effects', hold: 'effects', 'other-drug': 'effects', restart: 'gap', refill: 'gap' };
+export function breakOf(a, today = 0) {
+  const t = a.action.type || a.action.kind;
+  const key = BREAK_OF[t];
+  if (!key) return null;
+  // The day it bites: when the current supply runs out, or today for a red flag or a gap.
+  const day = key === 'effects' && a.action.kind === 'hold' ? today : key === 'gap' ? today : Math.max(today, a.nextFillDay);
+  return { key, day };
+}

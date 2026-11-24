@@ -24,6 +24,10 @@ const NOT = [
 
 const money = (x) => `$${Math.round(x).toLocaleString()}`;
 
+// Total cost of care above matched controls, obesity without diabetes, intent to treat.
+const OFFSET = [{ y: 'Year 1', v: 7071 }, { y: 'Year 2', v: 4777 }, { y: 'Year 3', v: 4490 }];
+const OFFSET_SOURCE = { text: 'Prime Therapeutics, 3-year cost study, Apr 2026. 10,094 members on GLP-1s against 29,570 matched controls', url: 'https://www.primetherapeutics.com/documents/d/primetherapeutics/pt_glp-1-obesity-treatment-3-year-cost-offset-study-with-non-glp1-pb-trends' };
+
 export default function Plans() {
   const [fee, setFee] = useState(65);
   const [months, setMonths] = useState(3);
@@ -32,10 +36,19 @@ export default function Plans() {
   const b = breakEven({ feePerMonth: fee, months, netPerYear: net });
   return (
     <div className="page plans">
-      <section className="hero small">
+      <section className="planlead">
         <p className="eyebrow">For plans and employers</p>
-        <h1>A plan buys the first 12 weeks, <span className="hl">per member</span>, with the record to check it.</h1>
-        <p className="lede">Pharmacist support is free at the counter today. This is the version a plan or employer pays for: a set service per enrolled member, and a monthly record it can audit.</p>
+        <h1>GLP-1s for weight did not pay for themselves in three years. A plan can still <span className="hl">stop paying for doses</span> that never reach a working dose.</h1>
+        <div className="offset">
+          <p className="sub">Total cost of care above matched members not on a GLP-1, per member per year</p>
+          <ol>
+            {OFFSET.map((o, i) => (
+              <li key={o.y}><span className="oy">{o.y}</span><span className="otrack"><i style={{ width: `${(o.v / 7071) * 100}%`, animationDelay: `${120 + i * 120}ms` }} /></span><span className="mono ov">+{money(o.v)}</span></li>
+            ))}
+          </ol>
+          <p className="sub"><a href={OFFSET_SOURCE.url} target="_blank" rel="noreferrer">{OFFSET_SOURCE.text}</a>. Medical spend was not lower, even in adherent members.</p>
+        </div>
+        <p className="lede">So the honest pitch is not savings. It is that more of the plan's drug dollars reach a working dose, with a monthly record that proves it. Pharmacist support is free at the counter today. This is the version a plan pays for.</p>
       </section>
 
       <div className="pcards three">

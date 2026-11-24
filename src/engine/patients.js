@@ -37,8 +37,6 @@ const CASES = [
   // Red flags: hold the next dose and get the prescriber today.
   { tag: 'hold', product: 'ozempic', uses: ['t2d'], coverage: 'medicare', target: 1, fills: ladder(-40, [0.25, 0.5]), rx: [{ strength: 0.5, fillsLeft: 2 }], reports: [{ day: 0, effects: [{ key: 'abdominal-pain-severe', level: 'severe' }, { key: 'vomiting', level: 'moderate' }] }], meds: ['metformin'] },
   { tag: 'hold', product: 'zepbound', uses: ['weight'], coverage: 'employer', target: 10, fills: ladder(-33, [2.5, 5]), rx: [{ strength: 5, fillsLeft: 2 }], reports: [{ day: -1, effects: [{ key: 'dehydration', level: 'severe' }, { key: 'diarrhea', level: 'severe' }] }] },
-  { tag: 'hold', product: 'wegovy', uses: ['weight'], coverage: 'commercial', target: 2.4, fills: ladder(-12, [0.25]), rx: [{ strength: 0.5, fillsLeft: 1 }], reports: [{ day: -1, effects: [{ key: 'thyroid-history', level: 'severe' }] }] },
-  { tag: 'hold', product: 'zepbound', uses: ['weight'], coverage: 'commercial', target: 10, fills: ladder(-47, [2.5, 5]), rx: [{ strength: 7.5, fillsLeft: 2 }], reports: [{ day: -2, effects: [{ key: 'pregnant', level: 'severe' }] }], meds: ['oral-contraceptive'] },
   // Low sugars on insulin: the other drug needs to come down.
   { tag: 'other-drug', product: 'mounjaro', uses: ['t2d'], coverage: 'medicare', target: 10, fills: ladder(-36, [2.5, 5]), rx: [{ strength: 7.5, fillsLeft: 2 }], reports: [{ day: -2, effects: [{ key: 'low-sugar', level: 'moderate' }] }], meds: ['insulin', 'metformin'] },
   // Two or more weeks without supply.
@@ -57,6 +55,11 @@ const CASES = [
   { tag: 'checkin-oc', product: 'zepbound', uses: ['weight'], coverage: 'commercial', target: 10, fills: ladder(-30, [2.5, 5]), rx: [{ strength: 7.5, fillsLeft: 1 }], meds: ['oral-contraceptive'], reports: [{ day: -15, effects: [{ key: 'nausea', level: 'mild' }] }] },
   { tag: 'checkin-new', product: 'zepbound', uses: ['weight'], coverage: 'employer', target: 10, fills: ladder(-3, [2.5]), rx: [{ strength: 5, fillsLeft: 1 }] },
   { tag: 'procedure', product: 'wegovy', uses: ['weight', 'cv'], coverage: 'medicare', target: 2.4, fills: ladder(-44, [0.25, 0.5]), rx: [{ strength: 1, fillsLeft: 2 }], reports: [{ day: -1, effects: [{ key: 'procedure', level: 'mild' }, { key: 'nausea', level: 'mild' }] }] },
+  // More money and paperwork breaks, so the cohort leans the way published reasons for stopping do.
+  { tag: 'pa', product: 'mounjaro', uses: ['t2d'], coverage: 'commercial', target: 10, fills: ladder(-51, [2.5, 5]), rx: [{ strength: 7.5, fillsLeft: 2 }], pa: { strengths: [2.5, 5, 7.5, 10], through: 3 }, meds: ['metformin'] },
+  { tag: 'card', product: 'wegovy', uses: ['weight'], coverage: 'commercial', target: 2.4, fills: ladder(-52, [0.25, 0.5]), rx: [{ strength: 1, fillsLeft: 2 }], card: { through: 2, copayWithout: 499 } },
+  { tag: 'step-no-rx', product: 'ozempic', uses: ['t2d'], coverage: 'commercial', target: 1, fills: ladder(-54, [0.25, 0.5]), rx: [{ strength: 0.5, fillsLeft: 0 }], meds: ['metformin'] },
+  { tag: 'stock', product: 'zepbound', uses: ['weight'], coverage: 'employer', target: 10, fills: ladder(-23, [2.5]), rx: [{ strength: 5, fillsLeft: 2 }], stock: { 5: 'out' } },
   // On track: nothing today.
   { tag: 'ok', product: 'wegovy', uses: ['weight', 'cv'], coverage: 'medicare', target: 2.4, fills: ladder(-50, [0.25, 0.5]), rx: [{ strength: 1, fillsLeft: 2 }], reports: [{ day: -6, effects: [{ key: 'nausea', level: 'mild' }] }] },
   { tag: 'ok', product: 'mounjaro', uses: ['t2d'], coverage: 'commercial', target: 7.5, fills: ladder(-40, [2.5, 5]), rx: [{ strength: 7.5, fillsLeft: 2 }], meds: ['metformin'] },

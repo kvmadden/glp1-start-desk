@@ -1,12 +1,14 @@
 # GLP-1 Start Desk
 
-A pharmacist's working desk for the first 12 weeks of GLP-1 therapy. It answers one question at the counter each morning: which of my new GLP-1 patients needs something today, and what exactly do I do?
+**The insight.** Most GLP-1 stops are about money and supply, not side effects. In one health system's chart review of 288 people who stopped, 47.6% stopped for financial reasons (a denial, a coupon that ended, the cost) and 11.8% for shortage, against 14.6% for side effects ([Gasoyan et al., Obesity, 2026, via Cleveland Clinic](https://consultqd.clevelandclinic.org/cost-side-effects-top-reasons-for-quitting-glp-1s-for-obesity)). Each of those breaks has a date. Every step up is a new strength, so it needs a new prescription, often a new approval, sometimes stock the store does not carry. The prescriber and the plan each see part of that. The pharmacy sees all of it, days before the patient gives up.
 
-More than 30% of new starts stopped within 4 weeks in Blue Health Intelligence's commercial claims, while the dose was still going up, and most did not reach 12 weeks ([BHI issue brief, May 2024](https://www.bcbs.com/sites/default/files/BHI_Issue_Brief_GLP1_Trends.pdf)). Each step up is a new strength, so it needs a new prescription, often a new prior authorization, sometimes stock the store does not carry, and brings a new round of nausea. Those are counter problems, and they have dates.
+**The tool.** A pharmacist's working desk for the first 12 weeks of GLP-1 therapy that turns each break into one action, dated before it hits: which of my new GLP-1 patients needs something today, and what exactly do I do?
 
 The patients are synthetic. No real patient, prescriber or claim is used. Dose rules come from the FDA labels for Wegovy, Ozempic, Zepbound and Mounjaro ([docs/SOURCES.md](docs/SOURCES.md)).
 
-![Today's desk: one patient's next action, a fax to the prescriber for the next strength](docs/img/today.png)
+![The opening chart: each patient's next break, by the day it hits](docs/img/breaks.png)
+
+![The work list: one patient's next action, a fax to the prescriber for the next strength](docs/img/today.png)
 
 ## What it does
 

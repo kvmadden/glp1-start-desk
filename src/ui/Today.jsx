@@ -138,15 +138,15 @@ function NextFill({ p, a }) {
 
 const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
-export default function Today({ data }) {
+export default function Today({ data, initial }) {
   const [filter, setFilter] = useState('all');
   const [done, setDone] = useState({});
   const all = data.order.map((id) => data.patients[id]);
   const counts = Object.fromEntries(PRIORITY.map((g) => [g.key, all.filter((x) => x.analysis.priority === g.key).length]));
   const groups = PRIORITY.filter((g) => filter === 'all' || filter === g.key).map((g) => ({ ...g, rows: all.filter((x) => x.analysis.priority === g.key) }));
   const visible = groups.flatMap((g) => g.rows);
-  const [sel, setSel] = useState(all[0].id);
-  const [sheet, setSheet] = useState(false);
+  const [sel, setSel] = useState(initial && data.patients[initial] ? initial : all[0].id);
+  const [sheet, setSheet] = useState(!!(initial && data.patients[initial]));
   useEffect(() => { if (!visible.some((x) => x.id === sel)) setSel(visible[0]?.id); }, [filter]);
   useEffect(() => {
     document.body.style.overflow = sheet && window.matchMedia('(max-width: 760px)').matches ? 'hidden' : '';

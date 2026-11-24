@@ -334,3 +334,99 @@ h2, h1.h2 { font-weight: 600; font-size: 20px; letter-spacing: -0.01em; margin: 
   .stepsvg text { font-size: 20px; }
   .stepsvg .clt { font-size: 18px; }
 }
+
+/* insight: full-height chapters, one idea and one visual each */
+.insight { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+.chapter { min-height: calc(100vh - 68px); display: flex; flex-direction: column; justify-content: center; padding: 64px 0; border-bottom: 1px solid var(--line); }
+.chapter:last-child { border-bottom: 0; }
+.chapter h1 { font-size: 56px; line-height: 1.06; letter-spacing: -0.03em; max-width: 960px; margin: 0 0 48px; animation: rise 520ms var(--ease) both; }
+.chapter .ch { font-size: 40px; line-height: 1.1; letter-spacing: -0.025em; max-width: 900px; margin: 0 0 12px; }
+.chsub { font-size: 18px; color: var(--muted); max-width: 680px; margin: 0 0 40px; }
+.chapter .src { margin-top: 24px; }
+.chapter.end { min-height: 60vh; align-items: flex-start; }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.primary.big { font-size: 17px; padding: 14px 24px; min-height: 52px; }
+
+.reasons { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; max-width: 980px; }
+.reasons li { display: grid; grid-template-columns: 300px 1fr 72px; gap: 20px; align-items: center; font-size: 17px; }
+.reasons .rtrack { height: 28px; border-radius: 6px; background: #eaefed; overflow: hidden; }
+.reasons .rtrack i { display: block; height: 100%; border-radius: 6px; background: #c3cfcb; transform-origin: left; animation: grow 800ms var(--ease) both; }
+.reasons li.money .rtrack i { background: var(--amber-bar); }
+.reasons li.supply .rtrack i { background: #7e94a8; }
+.reasons li.clinical .rtrack i { background: var(--coral); opacity: 0.8; }
+.reasons .rpct { font-size: 20px; text-align: right; }
+.reasons li.money { font-weight: 600; }
+.reasons li.money .rpct { color: var(--amber); }
+.reasons li.quiet { color: var(--muted); }
+
+.breakfig { margin: 0; }
+.breaks { width: 100%; height: auto; display: block; overflow: visible; }
+.breaks .bgrid { stroke: #e3e9e7; stroke-dasharray: 3 5; }
+.breaks .blane { stroke: #edf1f0; stroke-width: 2; }
+.breaks .blabel { font: 500 16px 'IBM Plex Sans', sans-serif; fill: var(--ink); }
+.breaks .bcount { font-size: 15px; fill: var(--muted); }
+.breaks .baxis { font: 13px 'IBM Plex Mono', monospace; fill: var(--muted); }
+.bdot { cursor: pointer; animation: dotin 420ms var(--ease) both; transform-box: fill-box; transform-origin: center; }
+.bdot circle { stroke: #fff; stroke-width: 2; transition: transform 140ms var(--ease); }
+.bdot .hit { fill: transparent; stroke: none; }
+.bdot.paperwork circle:first-child { fill: var(--blue); }
+.bdot.money circle:first-child { fill: var(--amber-bar); }
+.bdot.supply circle:first-child { fill: #7e94a8; }
+.bdot.clinical circle:first-child { fill: var(--coral); }
+.bdot:hover circle:first-child { stroke: var(--ink); }
+.btip rect { fill: var(--ink); }
+.btip text { font: 500 13px 'IBM Plex Sans', sans-serif; fill: #fff; }
+.breakfig figcaption { margin-top: 16px; max-width: 760px; }
+@keyframes dotin { from { opacity: 0; transform: scale(0.2); } to { opacity: 1; transform: none; } }
+
+.whosees { max-width: 1040px; }
+.wrow { display: grid; grid-template-columns: 320px repeat(3, 1fr); gap: 0 16px; align-items: center; border-top: 1px solid var(--line); padding: 16px 0; }
+.wrow.whead { border-top: 0; padding: 0 0 12px; font-weight: 600; color: var(--muted); font-size: 14px; }
+.wcol.hot { color: var(--pine); }
+.wlabel { font-weight: 500; font-size: 17px; }
+.wcell { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 10px; min-height: 56px; justify-content: center; }
+.wcell b { font-size: 20px; line-height: 1; color: #b9c4c1; }
+.wcell.yes b { color: var(--ink); }
+.wcell.maybe b { color: #8a9894; }
+.wcell small { font-size: 13px; color: var(--muted); }
+.wcell.hot { background: var(--pine-soft); }
+.wcell.hot b { color: var(--pine); }
+.wkey { margin-top: 20px; }
+.wkey b { color: var(--ink); margin: 0 4px 0 0; }
+
+@media (max-width: 1023px) {
+  .chapter h1 { font-size: 44px; }
+  .reasons li { grid-template-columns: 220px 1fr 64px; }
+  .wrow { grid-template-columns: 220px repeat(3, 1fr); }
+}
+@media (max-width: 760px) {
+  .insight { padding: 0 16px; }
+  .chapter { min-height: auto; padding: 48px 0; }
+  .chapter h1 { font-size: 32px; margin-bottom: 32px; }
+  .chapter .ch { font-size: 26px; }
+  .chsub { font-size: 16px; margin-bottom: 24px; }
+  .reasons li { grid-template-columns: 1fr 56px; grid-template-areas: 'l p' 't t'; gap: 6px 12px; font-size: 15px; }
+  .reasons .rlabel { grid-area: l; }
+  .reasons .rpct { grid-area: p; font-size: 17px; }
+  .reasons .rtrack { grid-area: t; height: 16px; }
+  .breaks .blabel { font-size: 13px; }
+  .breaks .baxis { font-size: 11px; }
+  .wrow { grid-template-columns: 1fr 1fr 1fr; gap: 6px 8px; }
+  .wrow .wlabel { grid-column: 1 / -1; font-size: 15px; }
+  .wrow.whead span:first-child { display: none; }
+  .wcell { min-height: 44px; padding: 8px; }
+  .wcell small { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .bdot, .reasons .rtrack i, .chapter h1 { animation: none; } }
+.wcell.no b { color: #c9d2cf; font-size: 18px; }
+.planlead { padding: 16px 0 48px; margin-bottom: 40px; border-bottom: 1px solid var(--line); }
+.planlead h1 { font-size: 44px; max-width: 980px; margin-bottom: 32px; }
+.offset { max-width: 860px; margin-bottom: 32px; }
+.offset ol { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 10px; }
+.offset li { display: grid; grid-template-columns: 72px 1fr 96px; gap: 16px; align-items: center; }
+.otrack { height: 24px; border-radius: 6px; background: #eaefed; overflow: hidden; }
+.otrack i { display: block; height: 100%; background: var(--coral); opacity: 0.85; border-radius: 6px; transform-origin: left; animation: grow 700ms var(--ease) both; }
+.ov { font-size: 18px; text-align: right; }
+.oy { color: var(--muted); font-size: 15px; }
+.planlead .lede { max-width: 760px; color: var(--ink); }
+@media (max-width: 760px) { .planlead h1 { font-size: 28px; } .offset li { grid-template-columns: 56px 1fr 76px; gap: 8px; } }

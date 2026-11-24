@@ -136,3 +136,16 @@ describe('the demo patients', () => {
     expect(list.slice(0, must.length).every((a) => mustToday(a, 0))).toBe(true);
   });
 });
+
+describe('breaks for the opening chart', async () => {
+  const { breakOf } = await import('../src/engine/desk.js');
+  const ps = buildPatients();
+  it('every patient with an action has a dated break, on-track patients have none', () => {
+    for (const p of ps) {
+      const a = analyze(p, 0);
+      const b = breakOf(a, 0);
+      if (a.action.kind === 'none' || a.action.type === 'checkin' || a.action.type === 'procedure') expect(b, p.id).toBeNull();
+      else { expect(b, `${p.id} ${a.action.type}`).not.toBeNull(); expect(b.day).toBeGreaterThanOrEqual(0); }
+    }
+  });
+});
