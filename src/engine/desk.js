@@ -201,7 +201,7 @@ function chooseAction(c) {
     return { kind: 'call', type: 'procedure', title: 'Call before the procedure', by: today + 1, why: 'The label tells patients to inform their care team before any planned surgery or procedure, because of the risk of aspiration under sedation.', cite: prod.cite.warnings };
   }
   if (missedDoses === 1 || (nextFillDay - today <= 2 && !p.fills.some((f) => f.day > today))) {
-    return { kind: 'call', type: 'refill', title: missedDoses === 1 ? 'Call: one dose late' : 'Call: supply ends in 2 days', by: today + (missedDoses === 1 ? 0 : 1), why: `Missed-dose window on this label: ${prod.missedWindowDays} days. After that the dose is skipped.`, cite: prod.cite.missed };
+    return { kind: 'call', type: 'refill', title: missedDoses === 1 ? 'Call: one dose late' : 'Call: supply ends in 2 days', by: today + (missedDoses === 1 ? 0 : 1), why: `${prod.brand} label: ${prod.missedRule}`, cite: prod.cite.missed };
   }
   if (stepJustHappened && today - firstAtCurrent >= CHECKIN_AFTER_STEP_DAYS - 1) {
     return { kind: 'call', type: 'checkin', title: `Check in on the new ${current} mg dose`, by: firstAtCurrent + CHECKIN_AFTER_STEP_DAYS + 2, why: 'A few days after a new strength is when stomach effects show and people decide whether to keep going.', cite: cite('practice') };

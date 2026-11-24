@@ -15,6 +15,7 @@ export const PRODUCTS = {
     weeksPerStep: 4,
     // Section 2.4: next dose more than 2 days away, give it. Less than 2 days, skip it.
     missedWindowDays: 2,
+    missedRule: 'Take a missed dose if the next one is more than 2 days away. Otherwise skip it.',
     // Section 2.4: two or more consecutive missed doses, reinitiate escalation at a lower dosage.
     restartAfterMissed: 2,
     // Section 2.2: if a dose is not tolerated during escalation, consider delaying escalation.
@@ -42,6 +43,7 @@ export const PRODUCTS = {
     weeksPerStep: 4,
     // Section 2.1: within 5 days of the missed dose, give it. After 5 days, skip it.
     missedWindowDays: 5,
+    missedRule: 'Take a missed dose within 5 days. After that, skip it.',
     restartAfterMissed: null,
     delayIfNotTolerated: false,
     oralContraceptiveWeeks: 0,
@@ -68,6 +70,7 @@ export const PRODUCTS = {
     weeksPerStep: 4,
     // Section 2.3: within 4 days (96 hours), give it. After 4 days, skip it.
     missedWindowDays: 4,
+    missedRule: 'Take a missed dose within 4 days. After that, skip it.',
     restartAfterMissed: null,
     // Section 2.2 speaks to maintenance: if not tolerated, consider a lower maintenance dosage.
     delayIfNotTolerated: false,
@@ -96,6 +99,7 @@ export const PRODUCTS = {
     max: 15,
     weeksPerStep: 4,
     missedWindowDays: 4,
+    missedRule: 'Take a missed dose within 4 days. After that, skip it.',
     restartAfterMissed: null,
     delayIfNotTolerated: false,
     oralContraceptiveWeeks: 4,

@@ -12,16 +12,16 @@ The patients are synthetic. No real patient, prescriber or claim is used. Dose r
 
 - **Today.** Every patient in weeks 0 to 12, with one next action each: hold, fax the prescriber, call the patient, or nothing today. Holds come first, then each action by the last day it still works.
 - **Dose step due.** Reads the label's ladder (Wegovy 0.25, 0.5, 1, 1.7, 2.4 mg, tirzepatide 2.5 mg steps), never steps up before 4 weeks on the current dose, and stops at the prescriber's target.
-- **Days covered and refill gap.** Days supplied since the first fill, when the supply runs out, and the label's missed-dose window (Wegovy 2 days, Ozempic 5, tirzepatide 4). After two or more missed weeks, the Wegovy label says to restart lower, and the other labels leave it to the prescriber, so the desk asks.
+- **Days covered and refill gap.** Days supplied since the first fill, when the supply runs out, and the label's missed-dose rule (Wegovy: take it if the next dose is more than 2 days away. Ozempic: within 5 days. Tirzepatide: within 4 days). After two or more missed weeks, the Wegovy label says to restart lower, and the other labels leave it to the prescriber, so the desk asks.
 - **Side effects and the tolerability decision.** Red flags (possible pancreatitis, gallbladder, fluid loss, thyroid cancer history, pregnancy) mean hold the next dose and call the prescriber today. Low sugars on insulin or a sulfonylurea mean ask about lowering that drug. Moderate stomach effects before a step mean ask to stay on the current dose 4 more weeks. Mild means continue with self-care.
 - **Blockers before the next fill.** No prescription for the next strength, a prior authorization that names only the starting strength or ends first, a savings card that runs out, the next strength out of stock, and Medicare with weight as the only use, which Part D excludes and the Medicare GLP-1 Bridge may cover.
 - **What to say.** Each call has a script, and each fax is written out. Tirzepatide patients on the pill hear the label's 4-week backup advice at the start and around each step.
-- **Short-staffed mode.** On a bad staffing day the desk shows only what cannot wait, and lists everything else with the last day it can wait until.
+- **Priority, not a pile.** Every patient always shows, grouped as cannot wait, this week, or on track, with the last day each action still works. On a thin staffing day the pharmacist filters to what cannot wait and knows exactly how long everything else can.
 - **For plans.** What a plan or employer buys per member, the monthly record it gets, what buyers pay for this today with sources, and the arithmetic for what must be true for the fee to pay back.
 
 The pharmacist never changes a dose. Every dose decision is a request to the prescriber, unless a collaborative practice agreement says otherwise.
 
-![Short-staffed: only what cannot wait today](docs/img/today-short.png)
+![Filtered to what cannot wait: a hold for possible pancreatitis](docs/img/today-now.png)
 
 ## What's checked
 

@@ -22,8 +22,13 @@ export const firstName = (n) => n.split(' ')[0];
 export const COVERAGE = { commercial: 'Commercial plan', employer: 'Self-insured employer', medicare: 'Medicare' };
 export const USE = { weight: 'Weight', t2d: 'Type 2 diabetes', cv: 'Heart risk', osa: 'Sleep apnea' };
 export const KIND = {
-  hold: { label: 'Hold', tone: 'brick' },
-  fax: { label: 'Fax prescriber', tone: 'slate' },
-  call: { label: 'Call patient', tone: 'gold' },
-  none: { label: 'Nothing today', tone: 'teal' },
+  hold: { label: 'Hold', tone: 'coral' },
+  fax: { label: 'Fax prescriber', tone: 'blue' },
+  call: { label: 'Call patient', tone: 'amber' },
+  none: { label: 'Nothing today', tone: 'pine' },
 };
+export const PRIORITY = [
+  { key: 'now', label: 'Cannot wait', hint: 'Today, or it stops working' },
+  { key: 'soon', label: 'This week', hint: 'Each has a last day' },
+  { key: 'track', label: 'On track', hint: 'Nothing to do yet' },
+];

@@ -52,3 +52,12 @@ describe('label schedules', () => {
     }
   });
 });
+
+describe('missed-dose wording', () => {
+  it('Wegovy counts from the next dose, the others from the missed one', () => {
+    expect(PRODUCTS.wegovy.missedRule).toMatch(/next one is more than 2 days away/);
+    expect(PRODUCTS.ozempic.missedRule).toMatch(/within 5 days/);
+    expect(PRODUCTS.zepbound.missedRule).toMatch(/within 4 days/);
+    expect(PRODUCTS.mounjaro.missedRule).toMatch(/within 4 days/);
+  });
+});

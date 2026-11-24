@@ -10,6 +10,25 @@ const CLIFFS = [
   { weeks: 'Any week', title: 'Two weeks without supply', what: 'Wegovy says to restart lower after 2 or more missed doses. The other labels leave it to the prescriber.', rule: 'Restart fax the same day', types: ['restart', 'refill'] },
 ];
 
+// The Wegovy ladder from the label, weeks 0 to 16, with each step-up marked as a place to fall off.
+function Staircase() {
+  const W = 1200; const H = 220; const L = 40; const R = 20; const T = 30; const B = 40;
+  const steps = [0.25, 0.5, 1, 1.7, 2.4];
+  const x = (w) => L + (w / 21) * (W - L - R);
+  const y = (i) => T + (H - T - B) * (1 - (i + 1) / steps.length);
+  let d = `M ${x(0)} ${y(0)}`;
+  steps.forEach((_, i) => { const w1 = Math.min(21, i === steps.length - 1 ? 21 : (i + 1) * 4); d += ` H ${x(w1)}`; if (i < steps.length - 1) d += ` V ${y(i + 1)}`; });
+  return (
+    <svg className="stepsvg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Wegovy label dose steps every 4 weeks, with each step-up marked">
+      {[4, 8, 12, 16].map((w) => <rect key={w} className="cl" x={x(w) - 26} y={T - 18} width="52" height={H - T - B + 18} rx="10" />)}
+      {[4, 8, 12, 16].map((w) => <text key={'c' + w} className="clt" x={x(w)} y={T - 4} textAnchor="middle">new Rx</text>)}
+      <path d={d} />
+      {steps.map((s, i) => <text key={s} x={x(i === steps.length - 1 ? 18.5 : i * 4 + 2)} y={y(i) - 10} textAnchor="middle">{s === 2.4 ? '2.4 mg maintenance' : `${s} mg`}</text>)}
+      {[0, 4, 8, 12, 16].map((w) => <text key={'w' + w} x={x(w)} y={H - 12} textAnchor="middle">{w === 0 ? 'Start' : `Week ${w}`}</text>)}
+    </svg>
+  );
+}
+
 export default function WhyStop({ data, go }) {
   const all = data.order.map((id) => data.patients[id]);
   const count = (types) => all.filter((p) => types.includes(p.analysis.action.type || p.analysis.action.kind)).length;
@@ -20,6 +39,7 @@ export default function WhyStop({ data, go }) {
         <h1>Most new starts never reach week 12. Every <span className="hl">step up</span> is a place to fall off.</h1>
         <p className="lede">Each step up is a new strength, a new prescription, often a new approval and a new round of nausea. The desk puts a rule on each of those moments.</p>
       </section>
+      <Staircase />
       <ol className="cliffs">
         {CLIFFS.map((c) => (
           <li key={c.weeks} className={c.hot ? 'cliff hot' : 'cliff'}>

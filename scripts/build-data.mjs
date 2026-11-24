@@ -13,15 +13,17 @@ const list = todayList(patients.map((p) => analyze(p, 0)), 0);
 
 const out = {
   store: { name: 'Store 0417', synthetic: true, today: TODAY_ISO, windowWeeks: WINDOW_WEEKS, faxLeadDays: FAX_LEAD_DAYS },
-  products: Object.fromEntries(Object.values(PRODUCTS).map((p) => [p.key, { brand: p.brand, ingredient: p.ingredient, steps: p.steps, maintenance: p.maintenance, missedWindowDays: p.missedWindowDays, restartAfterMissed: p.restartAfterMissed, schedule: p.cite.schedule }])),
+  products: Object.fromEntries(Object.values(PRODUCTS).map((p) => [p.key, { brand: p.brand, ingredient: p.ingredient, steps: p.steps, maintenance: p.maintenance, missedWindowDays: p.missedWindowDays, missedRule: p.missedRule, restartAfterMissed: p.restartAfterMissed, schedule: p.cite.schedule }])),
   sources: SOURCES,
   order: list.map((a) => a.id),
   patients: Object.fromEntries(list.map((a) => {
     const p = byId.get(a.id);
-    return [a.id, { ...p, tag: undefined, analysis: { ...a, mustToday: mustToday(a, 0) } }];
+    const priority = mustToday(a, 0) ? 'now' : a.action.kind === 'none' ? 'track' : 'soon';
+    return [a.id, { ...p, tag: undefined, analysis: { ...a, mustToday: mustToday(a, 0), priority } }];
   })),
 };
-mkdirSync(`${root}public/data`, { recursive: true });
-writeFileSync(`${root}public/data/desk.json`, JSON.stringify(out));
+// Bundled into the app so the desk opens with no data request.
+mkdirSync(`${root}src/data`, { recursive: true });
+writeFileSync(`${root}src/data/desk.json`, JSON.stringify(out));
 const must = list.filter((a) => mustToday(a, 0)).length;
-console.log('wrote public/data/desk.json', (JSON.stringify(out).length / 1024).toFixed(0), 'KB', `${list.length} patients, ${must} must happen today`);
+console.log('wrote src/data/desk.json', (JSON.stringify(out).length / 1024).toFixed(0), 'KB', `${list.length} patients, ${must} must happen today`);
