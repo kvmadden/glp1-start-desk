@@ -125,7 +125,7 @@ function WhoSees() {
           ))}
         </div>
       ))}
-      <p className="sub wkey"><b>●</b> sees it in the normal course of work <b>◐</b> only sometimes <b>○</b> does not see it. This is Kevin's read of who holds the information today, from 16 years in pharmacy, not a measured result.</p>
+      <p className="sub wkey"><b>●</b> sees it in the normal course of work <b>◐</b> only sometimes <b>○</b> does not see it. This is Kevin's read of who holds the information today, from more than 15 years in pharmacy, not a measured result.</p>
     </div>
   );
 }
