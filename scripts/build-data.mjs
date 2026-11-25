@@ -13,7 +13,7 @@ const list = todayList(patients.map((p) => analyze(p, 0)), 0);
 
 const out = {
   store: { name: 'Store 0417', synthetic: true, today: TODAY_ISO, windowWeeks: WINDOW_WEEKS, faxLeadDays: FAX_LEAD_DAYS },
-  products: Object.fromEntries(Object.values(PRODUCTS).map((p) => [p.key, { brand: p.brand, ingredient: p.ingredient, steps: p.steps, maintenance: p.maintenance, missedWindowDays: p.missedWindowDays, missedRule: p.missedRule, restartAfterMissed: p.restartAfterMissed, schedule: p.cite.schedule }])),
+  products: Object.fromEntries(Object.values(PRODUCTS).map((p) => [p.key, { brand: p.brand, ingredient: p.ingredient, steps: p.steps, maintenance: p.maintenance, missedWindowDays: p.missedWindowDays, missedRule: p.missedRule, restartAfterMissed: p.restartAfterMissed, schedule: p.cite.schedule, missedCite: p.cite.missed }])),
   sources: SOURCES,
   order: list.map((a) => a.id),
   patients: Object.fromEntries(list.map((a) => {

@@ -3,24 +3,31 @@ import Today from './ui/Today.jsx';
 import Insight from './ui/Insight.jsx';
 import Plans from './ui/Plans.jsx';
 import Pilot from './ui/Pilot.jsx';
-import { BrandMark } from './ui/bits.jsx';
 import { setToday, dateLabel } from './ui/format.js';
+import { TABS } from './ui/deskState.js';
 import data from './data/desk.json';
 
 setToday(data.store.today);
-
-const TABS = [
-  { key: 'why', label: 'The insight', short: 'Insight' },
-  { key: 'desk', label: 'Work list', short: 'Work list' },
-  { key: 'plans', label: 'For plans', short: 'Plans' },
-  { key: 'pilot', label: 'Pilot', short: 'Pilot' },
-];
 
 const readRoute = () => {
   const [t, q] = window.location.hash.replace(/^#\/?/, '').split('?');
   const tab = t === 'today' ? 'desk' : TABS.some((x) => x.key === t) ? t : 'why';
   return { tab, patient: new URLSearchParams(q || '').get('p') };
 };
+
+function Masthead({ tab, store }) {
+  return (
+    <header className="a-mast">
+      <div className="a-mast-in">
+        <a className="a-title" href="#/why">GLP-1 Start Desk</a>
+        <nav className="a-nav" aria-label="Sections">
+          {TABS.map((t) => <a key={t.key} href={`#/${t.key}`} className={tab === t.key ? 'on' : ''} aria-current={tab === t.key ? 'page' : undefined}>{t.label}</a>)}
+        </nav>
+        <span className="a-dateline">{store.name}, synthetic patients, {dateLabel(0)}, 2026</span>
+      </div>
+    </header>
+  );
+}
 
 export default function App() {
   const [{ tab, patient }, setRoute] = useState(readRoute());
@@ -32,26 +39,14 @@ export default function App() {
   const go = (t, p) => { window.location.hash = `/${t}${p ? `?p=${p}` : ''}`; };
   return (
     <div className="app">
-      <header className="top">
-        <a className="brand" href="#/why" aria-label="GLP-1 Start Desk, home">
-          <BrandMark />
-          <span>GLP-1 Start Desk</span>
-          <span className="brandsub">synthetic</span>
-        </a>
-        <nav className="tabs" aria-label="Sections">
-          {TABS.map((t) => (
-            <a key={t.key} href={`#/${t.key}`} className={tab === t.key ? 'tab on' : 'tab'} aria-current={tab === t.key ? 'page' : undefined}><span className="long">{t.label}</span><span className="short">{t.short}</span></a>
-          ))}
-        </nav>
-        <div className="planchip" title="Every patient on this desk is made up">{data.store.name} · synthetic patients · {dateLabel(0)}, 2026</div>
-      </header>
+      <Masthead tab={tab} store={data.store} />
       <main key={tab}>
         {tab === 'why' && <Insight data={data} go={go} />}
         {tab === 'desk' && <Today data={data} initial={patient} />}
-        {tab === 'plans' && <Plans />}
-        {tab === 'pilot' && <Pilot />}
+        {tab === 'plans' && <div className="a-carry"><Plans /></div>}
+        {tab === 'pilot' && <div className="a-carry"><Pilot /></div>}
       </main>
-      <footer className="foot">
+      <footer className="a-foot">
         <span>Synthetic patients. Dose rules from the FDA labels for Wegovy, Ozempic, Zepbound and Mounjaro. Every dose decision goes to the prescriber.</span>
         <a href="#/pilot">How a pilot would prove it</a>
       </footer>

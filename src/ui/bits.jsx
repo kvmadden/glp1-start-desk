@@ -14,27 +14,23 @@ export function useNarrow(px = 760) {
 }
 import { dateLabel } from './format.js';
 
-export function Chip({ tone = 'plain', children }) {
-  return <span className={`chip ${tone}`}>{children}</span>;
+// True when the main pointer is a mouse or trackpad that can hover.
+export function useFinePointer() {
+  const q = '(hover: hover) and (pointer: fine)';
+  const [f, setF] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches);
+  useEffect(() => {
+    const m = window.matchMedia(q);
+    const on = () => setF(m.matches);
+    m.addEventListener('change', on);
+    return () => m.removeEventListener('change', on);
+  }, []);
+  return f;
 }
 
 export function Cite({ c }) {
   if (!c) return null;
   const text = `${c.title}${c.section ? `, section ${c.section}` : ''}`;
   return c.url ? <a className="cite" href={c.url} target="_blank" rel="noreferrer">{text}</a> : <span className="cite">{text}</span>;
-}
-
-// The brand mark: four rising steps, the dose ladder.
-export function BrandMark({ size = 28 }) {
-  return (
-    <svg className="brandmark" width={size} height={size} viewBox="0 0 28 28" aria-hidden="true">
-      <rect width="28" height="28" rx="8" fill="#0f5c4d" />
-      <rect x="5" y="17" width="4" height="6" rx="1" fill="#9fd3c4" />
-      <rect x="10" y="13" width="4" height="10" rx="1" fill="#c9e8de" />
-      <rect x="15" y="9" width="4" height="14" rx="1" fill="#ffffff" />
-      <rect x="20" y="5" width="4" height="18" rx="1" fill="none" stroke="#d4962f" strokeWidth="1.4" strokeDasharray="2 1.5" />
-    </svg>
-  );
 }
 
 // A row's dose ladder: one bar per step up to the prescriber's target. Filled up to today's
