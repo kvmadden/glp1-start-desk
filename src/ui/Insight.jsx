@@ -199,8 +199,8 @@ export default function Insight({ data, go }) {
       </section>
       <section className="a-chapter">
         <p className="a-num">3</p>
-        <h2>Only the pharmacy sees <em>all of them</em>.</h2>
-        <p className="a-stand narrow">The prescriber and the plan each hold part of the picture. The counter holds the whole thing, days before the patient gives up.</p>
+        <h2>The pharmacy sees <em>all of them</em> in one place.</h2>
+        <p className="a-stand narrow">The prescriber and the plan each see part of the picture. The counter sees the whole thing, often days before the patient gives up.</p>
         <WhoSees />
       </section>
       <section className="a-chapter a-close">
