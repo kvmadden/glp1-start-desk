@@ -44,7 +44,7 @@ function Detail({ p, data, desk }) {
       <section className="a-block">
         <header><h3>{d.prod.brand}, week {a.week} of 12</h3><span>{a.coverage.covered} of {a.coverage.elapsed} days covered</span></header>
         <Ladder p={p} product={d.prod} a={a} held={d.ladderHeld} />
-        <p className="a-note">{d.ladderFoot} <Cite c={d.schedule} /></p>
+        <p className="a-note">{d.ladderFoot} <Cite c={d.schedule} />. {d.missedRule} <Cite c={d.missedCite} /></p>
       </section>
       <div className="a-two">
         <section className="a-block">

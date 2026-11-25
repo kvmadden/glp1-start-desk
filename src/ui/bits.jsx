@@ -14,6 +14,19 @@ export function useNarrow(px = 760) {
 }
 import { dateLabel } from './format.js';
 
+// True when the main pointer is a mouse or trackpad that can hover.
+export function useFinePointer() {
+  const q = '(hover: hover) and (pointer: fine)';
+  const [f, setF] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches);
+  useEffect(() => {
+    const m = window.matchMedia(q);
+    const on = () => setF(m.matches);
+    m.addEventListener('change', on);
+    return () => m.removeEventListener('change', on);
+  }, []);
+  return f;
+}
+
 export function Cite({ c }) {
   if (!c) return null;
   const text = `${c.title}${c.section ? `, section ${c.section}` : ''}`;

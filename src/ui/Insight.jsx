@@ -1,7 +1,7 @@
 // The opening story: why people stop, when each break hits, and who sees it first.
 import React, { useState } from 'react';
 import { REASONS, REASONS_SOURCE, SEES, SEES_NOTE, WHO } from './content.js';
-import { useNarrow } from './bits.jsx';
+import { useNarrow, useFinePointer } from './bits.jsx';
 import { dateLabel, firstName } from './format.js';
 import { breakPoints, BREAK_LANES } from './deskState.js';
 
@@ -48,19 +48,64 @@ function ReasonsChart() {
   );
 }
 
+// Same-day dots stack as a small beeswarm: up to three to a column on desktop, three down on a phone,
+// so no two dots share a spot. Each dot's click area starts as a 44-unit square inside its lane,
+// then any two that overlap are split at their midpoint, so no click area covers another dot's.
+function layoutDots(pts, x, yOf, laneH, narrow) {
+  const step = narrow ? 13 : 16;
+  const rows = narrow ? [0, 1, 2] : [0, -1, 1];
+  const half = narrow ? 22 : 28;
+  const out = [];
+  BREAK_LANES.forEach((ln, i) => {
+    const seen = {};
+    const top = narrow ? yOf(i) - 12 : yOf(i) - laneH / 2;
+    const bottom = narrow ? yOf(i) + 38 : yOf(i) + laneH / 2;
+    const here = pts.filter((q) => q.b.key === ln.key).sort((m, n) => m.b.day - n.b.day);
+    const dots = here.map((q) => {
+      const d = Math.min(q.b.day, 14);
+      const k = (seen[d] = (seen[d] || 0) + 1) - 1;
+      const cx = x(d) + Math.floor(k / rows.length) * step;
+      const cy = yOf(i) + rows[k % rows.length] * step;
+      return { q, ln, cx, cy, hit: { x0: cx - half, x1: cx + half, y0: Math.max(top, cy - half), y1: Math.min(bottom, cy + half) } };
+    });
+    for (let a = 0; a < dots.length; a += 1) {
+      for (let b = a + 1; b < dots.length; b += 1) {
+        const A = dots[a].hit;
+        const B = dots[b].hit;
+        if (A.x0 >= B.x1 || B.x0 >= A.x1 || A.y0 >= B.y1 || B.y0 >= A.y1) continue;
+        const dx = dots[b].cx - dots[a].cx;
+        const dy = dots[b].cy - dots[a].cy;
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          const m = (dots[a].cx + dots[b].cx) / 2;
+          if (dx >= 0) { A.x1 = Math.min(A.x1, m); B.x0 = Math.max(B.x0, m); } else { A.x0 = Math.max(A.x0, m); B.x1 = Math.min(B.x1, m); }
+        } else {
+          const m = (dots[a].cy + dots[b].cy) / 2;
+          if (dy >= 0) { A.y1 = Math.min(A.y1, m); B.y0 = Math.max(B.y0, m); } else { A.y0 = Math.max(A.y0, m); B.y1 = Math.min(B.y1, m); }
+        }
+      }
+    }
+    out.push(...dots);
+  });
+  return out;
+}
+
 // Chart 2: each patient's next break by the day it hits.
 function BreakStrip({ data, go }) {
   const narrow = useNarrow();
+  // Dots open a patient only with a mouse. On touch screens they sit too close for a 44px tap
+  // target each, so the chart is read-only there and every patient is one tap away in the work list.
+  const fine = useFinePointer() && !narrow;
   const [hover, setHover] = useState(null);
   const pts = breakPoints(data);
   const W = narrow ? 358 : 1180;
-  const laneH = narrow ? 58 : 52;
+  const laneH = narrow ? 66 : 52;
   const L = narrow ? 0 : 320;
   const R = narrow ? 24 : 48;
   const T = 30;
   const H = T + BREAK_LANES.length * laneH + 8;
   const x = (d) => L + 12 + (Math.min(d, 14) / 14) * (W - L - R - 24);
   const yOf = (i) => T + i * laneH + laneH / 2 + (narrow ? 10 : 0);
+  const placed = layoutDots(pts, x, yOf, laneH, narrow);
   return (
     <figure className="a-fig wide">
       <figcaption className="a-figtitle">The next break for each of 32 synthetic patients, by the day it hits</figcaption>
@@ -81,27 +126,23 @@ function BreakStrip({ data, go }) {
             </g>
           );
         })}
-        {BREAK_LANES.map((ln, i) => {
-          const seen = {};
-          return pts.filter((q) => q.b.key === ln.key).sort((m, n) => m.b.day - n.b.day).map((q) => {
-            const stack = (seen[q.b.day] = (seen[q.b.day] || 0) + 1) - 1;
-            const cx = x(q.b.day) + stack * (narrow ? 10 : 15);
-            return (
-              <g key={q.p.id} className={`a-dot ${ln.kind}`} onMouseEnter={() => setHover({ q, cx, cy: yOf(i) })} onMouseLeave={() => setHover(null)} onClick={() => go('desk', q.p.id)}>
-                <circle cx={cx} cy={yOf(i)} r={narrow ? 6 : 7} />
-                <circle cx={cx} cy={yOf(i)} r={narrow ? 22 : 38} className="hit" />
-              </g>
-            );
-          });
-        })}
-        {hover && !narrow && (
+        {placed.map(({ q, ln, cx, cy, hit }) => (fine ? (
+          <g key={q.p.id} className={`a-dot ${ln.kind}`} onMouseEnter={() => setHover({ q, cx, cy })} onMouseLeave={() => setHover(null)} onClick={() => go('desk', q.p.id)}>
+            <rect x={hit.x0} y={hit.y0} width={hit.x1 - hit.x0} height={hit.y1 - hit.y0} className="hit" />
+            <circle cx={cx} cy={cy} r={narrow ? 6 : 7} />
+          </g>
+        ) : (
+          <circle key={q.p.id} className={`a-dot still ${ln.kind}`} cx={cx} cy={cy} r={narrow ? 6 : 7} />
+        )))}
+        {hover && fine && (
           <g className="a-tip" transform={`translate(${Math.min(hover.cx + 14, W - 300)}, ${hover.cy - 42})`}>
             <rect width="286" height="30" />
             <text x="12" y="20">{firstName(hover.q.p.name)}: {hover.q.p.analysis.action.title.toLowerCase()}</text>
           </g>
         )}
       </svg>
-      <p className="a-note">Each dot is read from the prescription file, the approval, the card, the shelf or the last check-in. {narrow ? 'Tap' : 'Click'} a dot to open the patient.</p>
+      <p className="a-note">Each dot is read from the prescription file, the approval, the card, the shelf or the last check-in. {fine ? 'Click a dot to open the patient.' : 'Every patient is in the work list.'}</p>
+      {!fine && <button className="a-link a-open" onClick={() => go('desk')}>Open the work list →</button>}
     </figure>
   );
 }
@@ -133,7 +174,7 @@ function WhoSees() {
           ))}
         </div>
       ))}
-      <p className="a-note"><Harvey s="yes" /> sees it in the normal course of work <Harvey s="maybe" /> only sometimes <Harvey s="no" /> does not see it. Kevin's read of who holds the information today, from more than 15 years in pharmacy, not a measured result.</p>
+      <p className="a-note a-key"><span><Harvey s="yes" /> sees it in the normal course of work</span> <span><Harvey s="maybe" /> only sometimes</span> <span><Harvey s="no" /> does not see it.</span> Kevin's read of who holds the information today, from more than 15 years in pharmacy, not a measured result.</p>
     </div>
   );
 }

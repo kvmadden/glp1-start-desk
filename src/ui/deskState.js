@@ -76,11 +76,11 @@ export function detailOf(p, data, done) {
           : late ? [] : [{ tone: 'ok', text: `Prescription on file${p.pa ? ', approval covers it' : ''}${p.card ? ', savings card active' : ''}. Nothing blocking.` }]),
       ],
     };
-  const ladderFoot = `Label steps ${prod.steps.join(', ')} mg, at least 4 weeks each. Prescriber's target ${p.target} mg. ${prod.missedRule}`;
+  const ladderFoot = `Label steps ${prod.steps.join(', ')} mg, at least 4 weeks each. Prescriber's target ${p.target} mg.`;
   return {
     a, prod, k, lines, verb, sayLabel, when, quiet, fax, isDone: !!done[p.id], doneAt: done[p.id],
     effects: { tone: effTone, label: effLabel, flags: flags.map((e) => EFFECT_LABEL[e.key]), list: effects.map((e) => ({ key: e.key, label: EFFECT_LABEL[e.key], level: e.level })), note: effNote, none: effNone },
-    fill, ladderFoot, ladderHeld: held || a.action.type === 'restart', cite: a.action.cite, schedule: prod.schedule,
+    fill, ladderFoot, ladderHeld: held || a.action.type === 'restart', cite: a.action.cite, schedule: prod.schedule, missedRule: prod.missedRule, missedCite: prod.missedCite,
   };
 }
 
