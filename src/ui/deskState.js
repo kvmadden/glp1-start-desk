@@ -1,31 +1,8 @@
-// Shared state and content for the three visual directions. Each direction draws the same facts
-// and the same desk logic in its own layout, so only the look changes between them.
+// The work list's state and everything one patient's detail shows, as plain values.
 import { useEffect, useState } from 'react';
 import { BREAKS, breakOf, EFFECT_LABEL, FLAGS } from '../engine/desk.js';
-import { script } from '../ui/Today.jsx';
-import { dateLabel, dayName, KIND, PRIORITY } from '../ui/format.js';
-
-export const DIRECTIONS = ['a', 'b', 'c'];
-export function readDirection() {
-  if (typeof window === 'undefined') return null;
-  const d = new URLSearchParams(window.location.search).get('direction');
-  return DIRECTIONS.includes(d) ? d : null;
-}
-
-const FONTS = {
-  a: 'family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Libre+Franklin:wght@400;500;600',
-  b: 'family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500',
-  c: 'family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500',
-};
-export function loadFonts(d) {
-  const href = `https://fonts.googleapis.com/css2?${FONTS[d]}&display=swap`;
-  if (document.querySelector(`link[data-dir-font="${d}"]`)) return;
-  const l = document.createElement('link');
-  l.rel = 'stylesheet';
-  l.href = href;
-  l.dataset.dirFont = d;
-  document.head.appendChild(l);
-}
+import { script } from './content.js';
+import { dateLabel, dayName, KIND, PRIORITY } from './format.js';
 
 export const isPhone = () => window.matchMedia('(max-width: 760px)').matches;
 
@@ -34,7 +11,6 @@ export function breakPoints(data) {
   return data.order.map((id) => data.patients[id]).map((p) => ({ p, b: breakOf(p.analysis, 0) })).filter((x) => x.b);
 }
 export const BREAK_LANES = BREAKS;
-export const BREAK_SHORT = { rx: 'No Rx for next strength', pa: 'Approval for old strength', cost: 'Card or coverage ends', stock: 'Strength out of stock', effects: 'Side effects', gap: 'Already out' };
 
 const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 

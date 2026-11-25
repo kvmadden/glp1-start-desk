@@ -5,9 +5,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = new URL('..', import.meta.url).pathname;
-const files = ['README.md', ...readdirSync(join(root, 'docs')).filter((f) => f.endsWith('.md')).map((f) => `docs/${f}`), ...readdirSync(join(root, 'src/ui')).map((f) => `src/ui/${f}`), 'src/App.jsx',
-  // The visual directions under review carry the same copy and must make the same promise.
-  ...['a', 'b', 'c'].map((d) => `src/directions/${d}/${d.toUpperCase()}.jsx`), 'src/directions/shared.jsx'];
+const files = ['README.md', ...readdirSync(join(root, 'docs')).filter((f) => f.endsWith('.md')).map((f) => `docs/${f}`), ...readdirSync(join(root, 'src/ui')).map((f) => `src/ui/${f}`), 'src/App.jsx'];
 const RESULT_CLAIMS = [
   /desk (keeps|kept|saves|saved|raises|raised|lifts|lifted)\s+\S*\s*\d/i,
   /\d+(\.\d+)?\s*%\s+(more|fewer)\s+(patients|members|starts)/i,

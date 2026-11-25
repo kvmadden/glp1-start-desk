@@ -8,7 +8,7 @@ const shots = [
   { name: 'today-fax', hash: '#/today', w: 1440, h: 1000, click: 'Dana Archer' },
   { name: 'today-now', hash: '#/today', w: 1440, h: 1000, filter: 'Cannot wait' },
   { name: 'today-1024', hash: '#/today', w: 1024, h: 768 },
-  { name: 'today-1920', hash: '#/today', w: 1920, h: 1080, click: 'Sam Tandy' },
+  { name: 'today-1920', hash: '#/today', w: 1920, h: 1080, click: 'Sam Yeager' },
   { name: 'why', hash: '#/why', w: 1440, h: 1000 },
   { name: 'plans', hash: '#/plans', w: 1440, h: 1000 },
   { name: 'pilot', hash: '#/pilot', w: 1440, h: 1000 },
@@ -27,7 +27,7 @@ const shots = [
     await page.waitForTimeout(700);
     await page.waitForTimeout(200);
     await page.waitForTimeout(900);
-    await page.screenshot({ path: path.join(out, `${s.name}.png`), fullPage: !s.name.startsWith('phone') });
+    await page.screenshot({ path: path.join(out, `${s.name}.png`), fullPage: !s.name.startsWith('phone'), animations: 'disabled' });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     const small = await page.evaluate(() => [...document.querySelectorAll('button, a, input, summary')].filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.height < 44 && getComputedStyle(e).display !== 'inline'; }).map((e) => (e.textContent || e.tagName).trim().slice(0, 30)));
     console.log(s.name, 'overflow', overflow, 'small targets', small.length ? small.join(' | ') : 'none');
