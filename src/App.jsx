@@ -47,7 +47,10 @@ export default function App() {
         {tab === 'pilot' && <div className="a-carry"><Pilot /></div>}
       </main>
       <footer className="a-foot">
-        <span>Synthetic patients. Dose rules from the FDA labels for Wegovy, Ozempic, Zepbound and Mounjaro. Every dose decision goes to the prescriber.</span>
+        <div className="a-foot-text">
+          <p>Independent portfolio work by Kevin Madden. Not affiliated with or sponsored by any employer. Built on personal time and equipment, using only public or synthetic data.</p>
+          <p>Dose rules from the FDA labels for Wegovy, Ozempic, Zepbound and Mounjaro. Every dose decision goes to the prescriber.</p>
+        </div>
         <a href="#/pilot">How a pilot would prove it</a>
       </footer>
     </div>
