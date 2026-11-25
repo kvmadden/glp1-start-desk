@@ -45,7 +45,7 @@ export default function Pilot() {
       </section>
 
       <ol className="pflow" aria-label="Pilot design">
-        <li className="pstep"><span className="mono">Pick stores</span><strong>Pairs matched on weekly GLP-1 starts and pharmacist hours</strong></li>
+        <li className="pstep"><span className="mono">Pick stores</span><strong>Pairs matched on weekly GLP&#8209;1 starts and pharmacist hours</strong></li>
         <li className="parrow" aria-hidden="true">→</li>
         <li className="pstep"><span className="mono">Randomize</span><strong>A coin flip within each pair</strong></li>
         <li className="parrow" aria-hidden="true">→</li>

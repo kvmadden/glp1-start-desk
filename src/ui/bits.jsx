@@ -58,10 +58,11 @@ export function MiniLadder({ steps, current, next, target }) {
 
 // The first 12 weeks: each fill as a bar at its strength on the label's ladder, gaps in coral,
 // today's line, and where the next step falls due.
-export function Ladder({ p, product, a, held }) {
+export function Ladder({ p, product, a, held, compact, width }) {
   const steps = product.steps.filter((s) => p.target == null || s <= Math.max(p.target, a.current));
-  const narrow = useNarrow();
-  const W = narrow ? 360 : 760;
+  const phone = useNarrow();
+  const narrow = phone || compact;
+  const W = phone ? 360 : width || (narrow ? 360 : 760);
   const rowH = narrow ? 28 : 32;
   const H = steps.length * rowH;
   const top = 18;

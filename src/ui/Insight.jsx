@@ -4,31 +4,31 @@ import { useNarrow } from './bits.jsx';
 import { dateLabel, firstName } from './format.js';
 
 // Reasons for stopping, from one clinic's chart review of semaglutide and tirzepatide stops.
-const REASONS = [
+export const REASONS = [
   { label: 'Money: denial, coupon ended, cost', pct: 47.6, kind: 'money' },
   { label: 'Shortage', pct: 11.8, kind: 'supply' },
   { label: 'Side effects', pct: 14.6, kind: 'clinical' },
   { label: 'Unknown', pct: 11.1, kind: 'quiet' },
   { label: 'Other', pct: 10.8, kind: 'quiet' },
 ];
-const REASONS_SOURCE = { text: 'Money and shortage together: 59.4%. Gasoyan et al., Obesity, 2026, a chart review of 288 people who stopped at one health system, via Cleveland Clinic', url: 'https://consultqd.clevelandclinic.org/cost-side-effects-top-reasons-for-quitting-glp-1s-for-obesity' };
+export const REASONS_SOURCE = { text: 'Money and shortage together: 59.4%. Gasoyan et al., Obesity, 2026, a chart review of 288 people who stopped at one health system, via Cleveland Clinic', url: 'https://consultqd.clevelandclinic.org/cost-side-effects-top-reasons-for-quitting-glp-1s-for-obesity' };
 
 // Who can see each break before the patient stops. Kevin's read of how the information flows today.
-const SEES = {
+export const SEES = {
   rx: ['maybe', 'no', 'yes'],
   pa: ['maybe', 'yes', 'yes'],
   cost: ['no', 'no', 'yes'],
   stock: ['no', 'no', 'yes'],
   effects: ['maybe', 'no', 'yes'],
 };
-const SEES_NOTE = {
+export const SEES_NOTE = {
   rx: ['Only if they track the schedule', '', 'The file has no Rx for the next strength'],
   pa: ['After a denial notice', 'It issued the approval', 'The claim rejects at the counter'],
   cost: ['', 'A manufacturer card is outside the plan', 'The card adjudicates at the register'],
   stock: ['', '', 'The shelf and the order'],
   effects: ['If the patient calls', '', 'At every step-up pickup'],
 };
-const WHO = ['Prescriber', 'Plan or PBM', 'Pharmacy'];
+export const WHO = ['Prescriber', 'Plan or PBM', 'Pharmacy'];
 
 function Reasons() {
   return (

@@ -4,7 +4,7 @@ import { dateLabel, dayName, firstName, COVERAGE, USE, KIND, PRIORITY } from './
 import { EFFECT_LABEL, FLAGS } from '../engine/desk.js';
 
 // What to say on each kind of call. The desk's own `say` lines are added after these.
-function script(p, a, prod) {
+export function script(p, a, prod) {
   const n = firstName(p.name);
   const t = a.action.type;
   if (a.action.kind === 'hold') {

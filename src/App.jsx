@@ -6,6 +6,13 @@ import Pilot from './ui/Pilot.jsx';
 import { BrandMark } from './ui/bits.jsx';
 import { setToday, dateLabel } from './ui/format.js';
 import data from './data/desk.json';
+import { readDirection } from './directions/shared.jsx';
+import DirectionA from './directions/a/A.jsx';
+import DirectionB from './directions/b/B.jsx';
+import DirectionC from './directions/c/C.jsx';
+
+const DIRECTION = readDirection();
+const SHELLS = { a: DirectionA, b: DirectionB, c: DirectionC };
 
 setToday(data.store.today);
 
@@ -30,6 +37,11 @@ export default function App() {
     return () => window.removeEventListener('hashchange', on);
   }, []);
   const go = (t, p) => { window.location.hash = `/${t}${p ? `?p=${p}` : ''}`; };
+  if (DIRECTION) {
+    // A visual direction under review, chosen with ?direction=a, b or c. Same data, same desk logic.
+    const Shell = SHELLS[DIRECTION];
+    return <Shell data={data} tab={tab} patient={patient} go={go} />;
+  }
   return (
     <div className="app">
       <header className="top">
