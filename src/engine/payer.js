@@ -1,10 +1,10 @@
 // Public price and evidence anchors for the payer view. Each was read in its primary source on
 // 2026-11-22 (research note 06). No outcome number from an assumed rate appears here.
 export const ANCHORS = [
-  { key: 'cvs-quote', value: '$138', unit: 'per utilizer per month', text: 'CVS Weight Loss Program quote to the North Carolina State Health Plan, 12 months alongside GLP-1 use', source: 'NC State Health Plan Board of Trustees deck, Jan 25, 2024', url: 'https://www.shpnc.gov/media/3391/download' },
+  { key: 'chain-quote', value: '$138', unit: 'per utilizer per month', text: 'A national pharmacy chain\'s weight program, quoted to the North Carolina State Health Plan for 12 months alongside GLP-1 use', source: 'NC State Health Plan Board of Trustees deck, Jan 25, 2024', url: 'https://www.shpnc.gov/media/3391/download' },
   { key: 'broker', value: '$65 to $100', unit: 'per employee per month', text: 'Broker benchmark for employer weight programs. $150 or more per participant when the vendor also prescribes', source: 'CNBC quoting Marsh, Oct 27, 2026', url: 'https://www.cnbc.com/2026/10/27/glp1-drug-coverage-weight-loss-options.html' },
   { key: 'enreach', value: 'Fee paid', unit: 'amount not public', text: 'Evernorth EnReachRx pays participating retail pharmacies a professional service fee for GLP-1 dose and side-effect support', source: 'Evernorth, May 2, 2025', url: 'https://www.evernorth.com/articles/new-evernorth-enreachrx-model-expands-its-suite-glp-1-solutions-works-improve-patient' },
-  { key: 'free', value: '$0', unit: 'to the patient today', text: 'CVS offers pharmacist GLP-1 support at no additional cost in about 9,000 stores. The question is who pays for it', source: 'CVS Health, Aug 5, 2026', url: 'https://www.cvshealth.com/news/company-news/cvs-health-enhances-its-direct-to-consumer-weight-management-offerings.html' },
+  { key: 'free', value: '$0', unit: 'to the patient today', text: 'A national pharmacy chain offers pharmacist GLP-1 support at no additional cost in about 9,000 stores. The question is who pays for it', source: 'The chain\'s press release, Aug 5, 2026', url: 'https://www.cvshealth.com/news/company-news/cvs-health-enhances-its-direct-to-consumer-weight-management-offerings.html' },
 ];
 
 export const DRUG_COST = [
